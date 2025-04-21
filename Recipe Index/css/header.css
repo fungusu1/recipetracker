@@ -37,10 +37,6 @@ body {
     margin-right: 1rem;
   }
   
-  .header-left a:hover {
-    text-decoration: underline;
-  }
-  
   .header-left .nav-link {
     margin-right: 1rem;
     font-weight: 500;
