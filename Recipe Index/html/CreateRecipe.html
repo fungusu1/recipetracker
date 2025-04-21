@@ -1,0 +1,98 @@
+<html>
+<head>
+  <title>Create a Recipe</title>
+  <link rel="stylesheet" href="../css/CRecipe.css">
+  <link rel="stylesheet" href="../css/header.css">
+  <script src="../js/CRecipe.js" defer></script>
+</head>
+
+<body class="page-body">
+  <!--Header-->
+  <header class="header">
+    <div class="header-left">
+      <a href="#">Recipe Index</a>
+      <a href="#" class="nav-link">Breakfast</a>
+      <a href="#" class="nav-link">Lunch</a>
+      <a href="#" class="nav-link">Dinner</a>
+    </div>
+    <div class="header-center">
+      <input type="text" placeholder="Search recipes...">
+    </div>
+    <div class="header-right">
+      <button onclick="location.href='CreateRecipe.html'">Create!</button>
+      <a href="#" class="profile-link">Profile</a>
+    </div>
+  </header>
+
+  <!-- Recipe Container -->
+  <div class="container">
+    <h1>Create a New Recipe!</h1>
+    <form action="/create_recipe" method="POST" class="form-wrapper">
+      <!-- Title -->
+      <div>
+        <label for="title">Title:</label>
+        <input type="text" id="title" name="title" required placeholder="e.g. Spaghetti Carbonara" maxlength="100">
+      </div>
+
+      <!-- Description -->
+      <div>
+        <label for="description">Short Description:</label>
+        <textarea id="description" name="description" rows="2" placeholder="Briefly describe the amazing dish!"></textarea>
+      </div>
+
+      <!-- Cook Time & Servings -->
+      <div class="flex-row">
+        <div class="flex-half">
+          <label for="cook_time">Cook Time:</label>
+          <input type="number" id="cook_time" name="cook_time" required placeholder="Minutes"
+          onkeydown="return event.key >= '0' && event.key <= '9' || event.key === 'Backspace' || event.key === 'ArrowLeft' || event.key === 'ArrowRight'">
+        </div>
+        <div class="flex-half">
+          <label for="servings">Quantity / Servings:</label>
+          <input type="number" id="servings" name="servings" required placeholder="e.g. 4"
+          onkeydown="return event.key >= '0' && event.key <= '9' || event.key === 'Backspace' || event.key === 'ArrowLeft' || event.key === 'ArrowRight'">
+        </div>
+      </div>
+
+      <!-- Ingredients -->
+      <div>
+        <label>Ingredients:</label>
+        <div id="ingredients-container">
+          <div class="ingredient-item">
+            <div class="item-label">1.</div>
+            <textarea name="ingredients" required placeholder="e.g. 2 cups of flour" rows="1" maxlength="200" class="textarea-wrapper"></textarea>
+            <button type="button" class="remove-btn hidden">✕</button>
+          </div>
+        </div>
+        <div class="mt-2">
+          <button type="button" onclick="addField('ingredients-container', 'ingredients')" class="add-btn">
+            ＋ Add Ingredient
+          </button>
+        </div>
+      </div>
+
+      <!-- Instructions -->
+      <div>
+        <label>Instructions:</label>
+        <div id="instructions-container">
+          <div class="instruction-item">
+            <div class="item-label">1.</div>
+            <textarea name="instructions" required placeholder="e.g. Mix all ingredients" rows="1" maxlength="300" class="textarea-wrapper"></textarea>
+            <button type="button" class="remove-btn hidden">✕</button>
+          </div>
+        </div>
+        <div class="mt-2">
+          <button type="button" onclick="addField('instructions-container', 'instructions')" class="add-btn">
+            ＋ Add Step
+          </button>
+        </div>
+      </div>
+
+      <!-- Submit -->
+      <div class="text-center">
+        <button type="submit" class="submit-btn">Submit Recipe!</button>
+      </div>
+    </form>
+  </div>
+</body>
+</html>
