@@ -1,0 +1,33 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Profile - {{ user.username }}</title>
+    <link rel="stylesheet" href="../css/CRecipe.css">
+    <link rel="stylesheet" href="../css/header.css">
+</head>
+<body class="page-body">
+
+  <!--Header-->
+  <header class="header">
+    <div class="header-left">
+      <a href="Header.html">Recipe Index</a>
+      <a href="#" class="nav-link">Breakfast</a>
+      <a href="#" class="nav-link">Lunch</a>
+      <a href="#" class="nav-link">Dinner</a>
+    </div>
+    <div class="header-center">
+      <input type="text" placeholder="Search recipes...">
+    </div>
+    <div class="header-right">
+      <button onclick="location.href='CreateRecipe.html'">Create!</button>
+      <a href="#" class="profile-link">Profile</a>
+    </div>
+  </header>
+
+  <div class="container">
+    <img id="pfp" src="{{user.pfp_url}}" alt="User's profile picture">
+    <h1>{{ user.username }}</h1>
+    <p>{{ user.bio }}</p>
+  </div>
+</body>
+</html>
