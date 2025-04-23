@@ -57,7 +57,15 @@
 
     <!-- Recipe Section (inside container, after profile) -->
     <div class="recipe-section">
-      <h1>{{ user.username }}'s Recipes</h1>
+      <div class="recipe-header">
+        <h1>{{ user.username }}'s Recipes</h1>
+        <select id="sortDropdown" class="sort-dropdown">
+          <option value="date">Date</option>
+          <option value="rating">Rating</option>
+          <option value="title">Title</option>
+        </select>  
+      </div>
+      
       <div class="recipe-grid" id="recipeGrid"></div>
       <button class="expand-btn" id="expandBtn">Show more</button>
     </div>

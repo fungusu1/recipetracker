@@ -59,7 +59,6 @@
     font-size: 0.85rem;
 }
   
-
 .username {
     margin-bottom: -5px;
     text-align: left;
@@ -67,7 +66,7 @@
 
 /* Recipe Section */
 .recipe-section {
-    margin-top: 2rem;
+    margin-top: 3rem;
     padding: 1rem;
     background-color: #f9f9f9;
     border-radius: 0.5rem;
@@ -113,3 +112,22 @@
     background-color: #059669;
 }
 
+.recipe-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap; /* optional: wrap on smaller screens */
+    margin-bottom: 1rem;
+}
+  
+.recipe-header h1 {
+    margin: 0;
+    font-size: 1.25rem;
+}
+
+.sort-dropdown {
+    padding: 0.4rem;
+    font-size: 0.9rem;
+    border-radius: 0.15rem;
+    border: 1px solid #ccc;
+  }
