@@ -1,10 +1,15 @@
 <html>
+
 <head>
-    <meta charset="UTF-8">
-    <title>Profile - {{ user.username }}</title>
-    <link rel="stylesheet" href="../css/CRecipe.css">
-    <link rel="stylesheet" href="../css/header.css">
+  <meta charset="UTF-8">
+  <title>Profile - {{ user.username }}</title>
+  <link rel="stylesheet" href="../css/CRecipe.css">
+  <link rel="stylesheet" href="../css/header.css">
+  <link rel="stylesheet" href="../css/Profile.css">
+  <!-- Icon library -->
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
 </head>
+
 <body class="page-body">
 
   <!--Header-->
@@ -24,10 +29,44 @@
     </div>
   </header>
 
+  <!-- Container wrapping everything -->
   <div class="container">
-    <img id="pfp" src="{{user.pfp_url}}" alt="User's profile picture">
-    <h1>{{ user.username }}</h1>
-    <p>{{ user.bio }}</p>
+    <!-- Profile section -->
+    <div class="profile">
+      <div class="profile-left">
+        <img id="pfp" src="{{user.pfp_url}}" alt="User's profile picture"
+          onerror=this.src='../resources/profile_placeholder.jpg'>
+
+        <div class="socials-links">
+          <span class="material-symbols-outlined"> mail </span>
+          <span class="material-symbols-outlined"> center_focus_weak </span>
+          <span class="material-symbols-outlined"> raven </span>
+        </div>
+      </div>
+
+      <div class="profile-text">
+        <h1 class="username">{{ user.username }}</h1>
+        <p>user bio: lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum </p>
+      </div>
+    </div>
+    
+    <div class="avg-rating">
+      <span class="material-symbols-outlined"> star </span>
+      <p>average rating: 0/5</p>
+    </div>
+
+    <!-- Recipe Section (inside container, after profile) -->
+    <div class="recipe-section">
+      <h1>{{ user.username }}'s Recipes</h1>
+      <div class="recipe-grid" id="recipeGrid"></div>
+      <button class="expand-btn" id="expandBtn">Show more</button>
+    </div>
+
   </div>
+
 </body>
+ 
+
+<script src="../js/ProfileRecipeList.js"></script>
+
 </html>
