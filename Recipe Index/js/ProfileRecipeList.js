@@ -53,7 +53,7 @@ function expandHandler() {
     const btn = document.getElementById("expandBtn");
     const recipeGrid = document.getElementById("recipeGrid");
 
-    btn.textContent = expanded ? "Show Less" : "Expand";
+    btn.textContent = expanded ? "Show Less" : "Show More";
     if (expanded) {
         for (let i = singleRowAmount; i < recipes_placeholder.length; i++) {
             if (!createdCards[i]) {
