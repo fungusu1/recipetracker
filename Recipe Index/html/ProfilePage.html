@@ -1,0 +1,80 @@
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>Profile - {{ user.username }}</title>
+  <link rel="stylesheet" href="../css/CRecipe.css">
+  <link rel="stylesheet" href="../css/header.css">
+  <link rel="stylesheet" href="../css/Profile.css">
+  <!-- Icon library -->
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+</head>
+
+<body class="page-body">
+
+  <!--Header-->
+  <header class="header">
+    <div class="header-left">
+      <a href="Header.html">Recipe Index</a>
+      <a href="#" class="nav-link">Breakfast</a>
+      <a href="#" class="nav-link">Lunch</a>
+      <a href="#" class="nav-link">Dinner</a>
+    </div>
+    <div class="header-center">
+      <input type="text" placeholder="Search recipes...">
+    </div>
+    <div class="header-right">
+      <button onclick="location.href='CreateRecipe.html'">Create!</button>
+      <a href="ProfilePage.html" class="profile-link">Profile</a>
+    </div>
+  </header>
+
+  <!-- Container wrapping everything -->
+  <div class="container">
+    <!-- Profile section -->
+    <div class="profile">
+      <div class="profile-left">
+        <img id="pfp" src="{{user.pfp_url}}" alt="User's profile picture"
+          onerror=this.src='../images/profile_placeholder.jpg'>
+
+        <div class="socials-links">
+          <span class="material-symbols-outlined"> mail </span>
+          <span class="material-symbols-outlined"> center_focus_weak </span>
+          <span class="material-symbols-outlined"> raven </span>
+        </div>
+      </div>
+
+      <div class="profile-text">
+        <h1 class="username">{{ user.username }}</h1>
+        <p>user bio: lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum </p>
+      </div>
+    </div>
+    
+    <div class="avg-rating">
+      <span class="material-symbols-outlined"> star </span>
+      <p>average rating: 0/5</p>
+    </div>
+
+    <!-- Recipe Section (inside container, after profile) -->
+    <div class="recipe-section">
+      <div class="recipe-header">
+        <h1>{{ user.username }}'s Recipes</h1>
+        <select id="sortDropdown" class="sort-dropdown">
+          <option value="date">Date</option>
+          <option value="rating">Rating</option>
+          <option value="title">Title</option>
+        </select>  
+      </div>
+      
+      <div class="recipe-grid" id="recipeGrid"></div>
+      <button class="expand-btn" id="expandBtn">Show more</button>
+    </div>
+
+  </div>
+
+</body>
+ 
+
+<script src="../js/ProfileRecipeList.js"></script>
+
+</html>
