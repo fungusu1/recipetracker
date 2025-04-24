@@ -1,13 +1,13 @@
 const recipes_placeholder = [
-    { title: "recipe 1", image: "../resources/profile_placeholder.jpg", rating: 0 },
-    { title: "recipe 2", image: "../resources/profile_placeholder.jpg", rating: 0 },
-    { title: "recipe 3", image: "../resources/profile_placeholder.jpg", rating: 0 },
-    { title: "recipe 4", image: "../resources/profile_placeholder.jpg", rating: 0 },
-    { title: "recipe 5", image: "../resources/profile_placeholder.jpg", rating: 0 },
-    { title: "recipe 6", image: "../resources/profile_placeholder.jpg", rating: 0 },
-    { title: "recipe 7", image: "../resources/profile_placeholder.jpg", rating: 0 },
-    { title: "recipe 8", image: "../resources/profile_placeholder.jpg", rating: 0 },
-    { title: "recipe 9", image: "../resources/profile_placeholder.jpg", rating: 0 }
+    { title: "recipe 1", image: "../images/profile_placeholder.jpg", rating: 0 },
+    { title: "recipe 2", image: "../images/profile_placeholder.jpg", rating: 0 },
+    { title: "recipe 3", image: "../images/profile_placeholder.jpg", rating: 0 },
+    { title: "recipe 4", image: "../images/profile_placeholder.jpg", rating: 0 },
+    { title: "recipe 5", image: "../images/profile_placeholder.jpg", rating: 0 },
+    { title: "recipe 6", image: "../images/profile_placeholder.jpg", rating: 0 },
+    { title: "recipe 7", image: "../images/profile_placeholder.jpg", rating: 0 },
+    { title: "recipe 8", image: "../images/profile_placeholder.jpg", rating: 0 },
+    { title: "recipe 9", image: "../images/profile_placeholder.jpg", rating: 0 }
 ]
 
 const singleRowAmount = 4;
