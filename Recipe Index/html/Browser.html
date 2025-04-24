@@ -1,0 +1,103 @@
+<html>
+<head>
+  <title>Browse Recipes</title>
+  <link rel="stylesheet" href="../css/header.css">
+  <link rel="stylesheet" href="../css/Profile.css">
+  <link rel="stylesheet" href="../css/Browser.css">
+</head>
+
+<body class="page-body">
+    
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+          <a href="Header.html">Recipe Index</a>
+          <a href="Browser.html" class="nav-link">Breakfast</a>
+          <a href="Browser.html" class="nav-link">Lunch</a>
+          <a href="Browser.html" class="nav-link">Dinner</a>
+        </div>
+        <div class="header-center">
+          <input type="text" placeholder="Search recipes...">
+        </div>
+        <div class="header-right">
+          <button onclick="location.href='CreateRecipe.html'">Create!</button>
+          <a href="ProfilePage.html" class="profile-link">Profile</a>
+        </div>
+      </header>
+
+ <!-- Browser -->
+  <main class="browse-container">
+    <h1>Browse Recipes</h1>
+    <section class="filter-bar">
+      <label for="sort" >Sort by:</label>
+      <select id="sort" name="sort">
+        <option value="cook-time-asc">Least Cook Time</option>
+        <option value="cook-time-desc">Most Cook Time</option>
+        <option value="quantity-desc">Most Quantity</option>
+      </select>
+
+      <label for="category" style="font-weight: bold; font-size: 0.95rem;">Category:</label>
+      <select id="category" name="category">
+        <option value="all">All</option>
+        <option value="breakfast">Breakfast</option>
+        <option value="lunch">Lunch</option>
+        <option value="dinner">Dinner</option>
+      </select>
+
+      <label for="cuisine" style="font-weight: bold; font-size: 0.95rem;">Cuisine:</label>
+      <select id="cuisine" name="cuisine">
+        <option value="all">All</option>
+        <option value="italian">Italian</option>
+        <option value="french">French</option>
+        <option value="indian">Indian</option>
+        <option value="japanese">Japanese</option>
+      </select>
+    </section>
+    <div class="recipe-listing">
+      <!-- Repeating Recipe Card -->
+      <div class="recipe-preview" onclick="location.href='#'">
+        <img src="../images/temporary_food.png" alt="Temporary Food">
+        <h3>Sample Recipe</h3>
+        <p>Quick description of this dish. Delicious and easy to make!</p>
+        <p><strong>Cook Time:</strong> 30 mins</p>
+        <p><strong>Quantity:</strong> Serves 4</p>
+      </div>
+      <div class="recipe-preview" onclick="location.href='#'">
+        <img src="../images/temporary_food.png" alt="Temporary Food">
+        <h3>Sample Recipe</h3>
+        <p>Quick description of this dish. Delicious and easy to make!</p>
+        <p><strong>Cook Time:</strong> 30 mins</p>
+        <p><strong>Quantity:</strong> Serves 4</p>
+      </div>
+      <div class="recipe-preview" onclick="location.href='#'">
+        <img src="../images/temporary_food.png" alt="Temporary Food">
+        <h3>Sample Recipe</h3>
+        <p>Quick description of this dish. Delicious and easy to make!</p>
+        <p><strong>Cook Time:</strong> 30 mins</p>
+        <p><strong>Quantity:</strong> Serves 4</p>
+      </div>
+      <div class="recipe-preview" onclick="location.href='#'">
+        <img src="../images/temporary_food.png" alt="Temporary Food">
+        <h3>Sample Recipe</h3>
+        <p>Quick description of this dish. Delicious and easy to make!</p>
+        <p><strong>Cook Time:</strong> 30 mins</p>
+        <p><strong>Quantity:</strong> Serves 4</p>
+      </div>
+      <div class="recipe-preview" onclick="location.href='#'">
+        <img src="../images/temporary_food.png" alt="Temporary Food">
+        <h3>Sample Recipe</h3>
+        <p>Quick description of this dish. Delicious and easy to make!</p>
+        <p><strong>Cook Time:</strong> 30 mins</p>
+        <p><strong>Quantity:</strong> Serves 4</p>
+      </div>
+      <div class="recipe-preview" onclick="location.href='#'">
+        <img src="../images/temporary_food.png" alt="Temporary Food">
+        <h3>Sample Recipe</h3>
+        <p>Quick description of this dish. Delicious and easy to make!</p>
+        <p><strong>Cook Time:</strong> 30 mins</p>
+        <p><strong>Quantity:</strong> Serves 4</p>
+      </div>
+    </div>
+  </main>
+</body>
+</html>
