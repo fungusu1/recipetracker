@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <title>{{ recipe.title }}</title>
   <link rel="stylesheet" href="../css/VRecipe.css">
-  <link rel="stylesheet" href="../css/VHeader.css">
+  <link rel="stylesheet" href="../css/Header.css">
   <style>
     .star {
       color: gold;
@@ -29,17 +29,19 @@
   <!-- Header -->
   <header class="header">
     <div class="header-left">
-      <a href="{{ url_for('home') }}">Recipe Index</a>
-      <a href="#" class="nav-link">Breakfast</a>
-      <a href="#" class="nav-link">Lunch</a>
-      <a href="#" class="nav-link">Dinner</a>
+        <a href="HomePage.html">Recipe Index</a>
+        <a href="Browser.html" class="nav-link">Breakfast</a>
+        <a href="Browser.html" class="nav-link">Lunch</a>
+        <a href="Browser.html" class="nav-link">Dinner</a>
     </div>
     <div class="header-center">
-      <input type="text" placeholder="Search recipes...">
+        <input type="text" placeholder="Search recipes...">
     </div>
     <div class="header-right">
-      <button onclick="location.href='CreateRecipe.html'">Create!</button>
-      <a href="#" class="profile-link">Profile</a>
+        <a href="Login.html" class="nav-link">Log In</a>
+        <a href="SignUp.html" class="nav-link">Sign Up</a>
+        <button onclick="location.href='CreateRecipe.html'">Create!</button>
+        <a href="ProfilePage.html" class="profile-link">Profile</a>
     </div>
   </header>
 
