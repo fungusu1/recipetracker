@@ -64,6 +64,18 @@ body {
   .header-right {
     justify-content: flex-end;
   }
+
+  .header-right .nav-link {
+    margin-left: 1rem;
+    font-weight: 500;
+    font-size: 1rem;
+    color: #374151;
+    text-decoration: none;
+  }
+
+  .header-right .nav-link:hover {
+    text-decoration: underline;
+  }
   
   .header-right button {
     margin-left: 1rem;
