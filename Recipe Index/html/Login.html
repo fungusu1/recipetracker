@@ -1,0 +1,50 @@
+<html>
+
+<head>
+  <title>Login</title>
+  <link rel="stylesheet" href="../css/header.css">
+  <link rel="stylesheet" href="../css/LogInSignUp.css">
+  <script src="../js/Login.js" defer></script>
+</head>
+
+<body class="page-body">
+    <!--  Header  -->
+    <header class="header">
+        <div class="header-left">
+            <a href="HomePage.html">Recipe Index</a>
+            <a href="#" class="nav-link">Breakfast</a>
+            <a href="#" class="nav-link">Lunch</a>
+            <a href="#" class="nav-link">Dinner</a>
+        </div>
+        <div class="header-center">
+            <input type="text" placeholder="Search recipes...">
+        </div>
+        <div class="header-right">
+            <a href="Login.html" class="nav-link">Log In</a>
+            <a href="SignUp.html" class="nav-link">Sign Up</a>
+            <button onclick="location.href='CreateRecipe.html'">Create!</button>
+            <a href="ProfilePage.html" class="profile-link">Profile</a>
+        </div>
+    </header>
+
+    <!--  Page Content  -->
+    <div class="login-container">
+        <h1>Log In</h1>
+        <form onsubmit="return redirectToProfile()">
+            <label for="username">Email:</label>
+            <input type="text" id="username" name="username" required placeholder="example@email.com" maxlength="100">
+
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+
+            <button type="submit">Log In</button>
+        </form>
+        <p>Don't have an account? <a href="SignUp.html">Sign Up</a></p>
+
+</body>
+
+
+
+
+</html>
+
