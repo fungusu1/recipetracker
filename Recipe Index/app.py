@@ -1,6 +1,16 @@
+import os
 from flask import Flask, render_template, send_from_directory
+from models import db
 
 app = Flask(__name__, template_folder='html')
+base_dir = os.path.abspath(os.path.dirname(__file__))
+
+# Configure SQLite database
+app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{os.path.join(base_dir, 'database.db')}"
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Initialize SQLAlchemy
+db.init_app(app)
 
 #Auto-correcting CSS, JS and Images routing
 @app.route('/css/<path:filename>')
