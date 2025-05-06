@@ -2,8 +2,13 @@
 <head>
   <title>Browse Recipes</title>
   <link rel="stylesheet" href="../css/header.css">
-  <link rel="stylesheet" href="../css/Profile.css">
   <link rel="stylesheet" href="../css/Browser.css">
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+  <script src="../js/Browser.js"></script>
+  <script>var ingredientUnits = {{ ingredient_units|tojson }};</script>
+  <script>var recipeMissingIngredients = {{ recipe_missing_ingredients|tojson }};</script>
 </head>
 
 <body class="page-body">
@@ -28,79 +33,59 @@
   </header>
 
   <!-- Browser -->
-  <main class="browse-container">
-    <h1>Browse Recipes</h1>
-    <!-- Filters -->
-    <section class="filter-bar">
-      <label for="sort" >Sort by:</label>
-      <select id="sort" name="sort">
-        <option value="cook-time-asc">Least Cook Time</option>
-        <option value="cook-time-desc">Most Cook Time</option>
-        <option value="quantity-desc">Most Quantity</option>
+  <main class="browse-container" id="browse-main">
+    <h2 class="ingredient-title">What ingredients do you have?</h2>
+    <form class="search-bar" method="get" action="/browse">
+      <div class="search-bar-fields">
+        <div id="ingredients-search-container">
+          <div class="ingredient-search-item">
+            <label for="ingredient-0">Ingredient:</label>
+            <select id="ingredient-0" name="ingredient[]">
+              <option value="">-- Select ingredient --</option>
+              {% for option in ingredients %}
+                <option value="{{ option.name }}">{{ option.name }}</option>
+              {% endfor %}
+            </select>
+            <span class="amount-group">
+              <label for="amount-0" class="amount-label">Amount:</label>
+              <input type="number" id="amount-0" name="servings[]" min="1" placeholder="e.g. 4">
+              <span class="unit-label"></span>
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="add-ingredient-bar">
+        <button type="button" id="add-ingredient-btn" class="add-btn">＋ Ingredient</button>
+      </div>
+    </form>
+    <form method="get" action="/browse" class="filter-bar filter-bar-padded">
+      {% for ingredient in selected_ingredients %}
+        <input type="hidden" name="ingredient[]" value="{{ ingredient }}">
+      {% endfor %}
+      {% for serving in selected_servings %}
+        <input type="hidden" name="servings[]" value="{{ serving }}">
+      {% endfor %}
+      <label for="sort">Sort by:</label>
+      <select id="sort" name="sort" onchange="this.form.submit()">
+        <option value="cook-time-asc" {% if selected_sort == 'cook-time-asc' %}selected{% endif %}>Least Cook Time</option>
+        <option value="cook-time-desc" {% if selected_sort == 'cook-time-desc' %}selected{% endif %}>Most Cook Time</option>
+        <option value="quantity-desc" {% if selected_sort == 'quantity-desc' %}selected{% endif %}>Most Quantity</option>
+        <option value="quantity-asc" {% if selected_sort == 'quantity-asc' %}selected{% endif %}>Least Quantity</option>
       </select>
-
-      <label for="category">Category:</label>
-      <select id="category" name="category">
-        <option value="all">All</option>
-        <option value="breakfast">Breakfast</option>
-        <option value="lunch">Lunch</option>
-        <option value="dinner">Dinner</option>
-      </select>
-
-      <label for="cuisine">Cuisine:</label>
-      <select id="cuisine" name="cuisine">
-        <option value="all">All</option>
-        <option value="italian">Italian</option>
-        <option value="french">French</option>
-        <option value="indian">Indian</option>
-        <option value="japanese">Japanese</option>
-      </select>
-    </section>
+    </form>
     <!-- Recipes -->
     <div class="recipe-listing">
-      <!-- Repeating Recipe Card -->
-      <div class="recipe-preview" onclick="location.href='/recipe'">
-        <img src="../images/temporary_food.png" alt="Temporary Food">
-        <h3>Sample Recipe</h3>
-        <p>Small description of the food, testing out the limits of this text box, lalalallaalalaalalalalalalalalalalalallalalalalalallalalalalalalallalalalallalalalalalalalaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa,mhm, I'll fix the limit later xD</p>
-        <p><strong>Cook Time:</strong> 30 mins</p>
-        <p><strong>Quantity:</strong> Serves 4</p>
+      {% for recipe in recipes %}
+      <div class="recipe-preview" data-recipe-id="{{ recipe.id }}" onclick="location.href='/recipe?id={{ recipe.id }}'">
+        <img src="../images/temporary_food.png" alt="Recipe Image">
+        <h3>{{ recipe.name }}</h3>
+        <p>{{ recipe.description }}</p>
+        <p><strong>Cook Time:</strong> {{ recipe.cook_time }} mins</p>
+        <p><strong>Quantity:</strong> Serves {{ recipe.servings }}</p>
       </div>
-      <div class="recipe-preview" onclick="location.href='/recipe'">
-        <img src="../images/temporary_food.png" alt="Temporary Food">
-        <h3>Sample Recipe</h3>
-        <p>Small description of the food, testing out the limits of this text box</p>
-        <p><strong>Cook Time:</strong> 30 mins</p>
-        <p><strong>Quantity:</strong> Serves 4</p>
-      </div>
-      <div class="recipe-preview" onclick="location.href='/recipe'">
-        <img src="../images/temporary_food.png" alt="Temporary Food">
-        <h3>Sample Recipe</h3>
-        <p>Small description of the food, testing out the limits of this text box</p>
-        <p><strong>Cook Time:</strong> 30 mins</p>
-        <p><strong>Quantity:</strong> Serves 4</p>
-      </div>
-      <div class="recipe-preview" onclick="location.href='/recipe'">
-        <img src="../images/temporary_food.png" alt="Temporary Food">
-        <h3>Sample Recipe</h3>
-        <p>Small description of the food, testing out the limits of this text box</p>
-        <p><strong>Cook Time:</strong> 30 mins</p>
-        <p><strong>Quantity:</strong> Serves 4</p>
-      </div>
-      <div class="recipe-preview" onclick="location.href='/recipe'">
-        <img src="../images/temporary_food.png" alt="Temporary Food">
-        <h3>Sample Recipe</h3>
-        <p>Small description of the food, testing out the limits of this text box</p>
-        <p><strong>Cook Time:</strong> 30 mins</p>
-        <p><strong>Quantity:</strong> Serves 4</p>
-      </div>
-      <div class="recipe-preview" onclick="location.href='/recipe'">
-        <img src="../images/temporary_food.png" alt="Temporary Food">
-        <h3>Sample Recipe</h3>
-        <p>Quick description of this dish. Delicious and easy to make! YUM!</p>
-        <p><strong>Cook Time:</strong> 30 mins</p>
-        <p><strong>Quantity:</strong> Serves 4</p>
-      </div>
+      {% else %}
+      <p>No recipes found.</p>
+      {% endfor %}
     </div>
   </main>
 </body>
