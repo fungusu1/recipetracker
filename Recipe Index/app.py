@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template, send_from_directory, request, redirect, url_for
+from flask import Flask, render_template, send_from_directory, request, redirect, url_for, jsonify
 # from models import db
 from models import db, Recipe, RecipeIngredient, Instruction, BaseIngredient, User
 
@@ -32,6 +32,21 @@ def images(filename):
 @app.route('/')
 def homepage():
     return render_template('HomePage.html')
+
+@app.route('/api/base_ingredients', methods=['POST'])
+def add_base_ingredient():
+    data = request.get_json() or {}
+    name = data.get('name')
+    if not name:
+        return jsonify(error="Name is required"), 400
+
+    unit = data.get('default_unit')
+    bi = BaseIngredient(name=name, default_unit=unit)
+    db.session.add(bi)
+    db.session.commit()
+
+    # return the new ingredient so JS can append it
+    return jsonify(id=bi.id, name=bi.name, default_unit=bi.default_unit), 201
 
 @app.route('/create', methods=['GET', 'POST'])
 def create():
