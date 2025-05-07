@@ -1,6 +1,8 @@
 import os
-from flask import Flask, render_template, send_from_directory
-from models import db
+from flask import Flask, render_template, send_from_directory, request, redirect, url_for
+# from models import db
+from models import db, Recipe, RecipeIngredient, Instruction, BaseIngredient
+
 
 app = Flask(__name__, template_folder='html')
 base_dir = os.path.abspath(os.path.dirname(__file__))
@@ -30,9 +32,58 @@ def images(filename):
 def homepage():
     return render_template('HomePage.html')
 
-@app.route('/create')
+@app.route('/create', methods=['GET', 'POST'])
 def create():
-    return render_template('CreateRecipe.html')
+    # return render_template('CreateRecipe.html')
+    if request.method == 'GET':
+        # fetch base ingredients for the dropdown
+        base_ingredients = BaseIngredient.query.order_by(BaseIngredient.name).all()
+        return render_template('create_recipe.html', base_ingredients=base_ingredients)
+
+    # POST: parse and save the new recipe
+    name        = request.form['title']
+    description = request.form.get('description', '')
+    cook_time   = int(request.form['cook_time'])
+    servings    = int(request.form['servings'])
+
+    # create Recipe
+    recipe = Recipe(
+        name=name,
+        description=description,
+        cook_time=cook_time,
+        servings=servings,
+        user_id=None  # adjust if you have a user system
+    )
+    db.session.add(recipe)
+    db.session.flush()  # assign recipe.id without commit
+
+    # ingredients
+    for ing_id, qty in zip(request.form.getlist('ingredient_id'),
+                           request.form.getlist('quantity')):
+        if ing_id and qty.strip():
+            ri = RecipeIngredient(
+                recipe_id=recipe.id,
+                ingredient_id=int(ing_id),
+                quantity=qty.strip()
+            )
+            db.session.add(ri)
+
+    # instructions
+    for i, step in enumerate(request.form.getlist('instructions'), start=1):
+        if step.strip():
+            inst = Instruction(
+                recipe_id=recipe.id,
+                step_number=i,
+                content=step.strip()
+            )
+            db.session.add(inst)
+
+    db.session.commit()
+    # temporary redirect to index until view page is ready
+    return redirect(url_for('index'))
+
+
+
 
 @app.route('/browse')
 def browse():
