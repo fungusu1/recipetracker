@@ -30,6 +30,8 @@ class Recipe(db.Model):
     cook_time = db.Column(db.Integer)
     servings = db.Column(db.Integer)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    shared_with_ids = db.Column(db.String(255), default='[]')
+    access_level = db.Column(db.Integer, default=0)
 
     ingredients = db.relationship('RecipeIngredient', backref='recipe', cascade="all, delete-orphan", lazy=True)
     instructions = db.relationship('Instruction', backref='recipe', cascade="all, delete-orphan", lazy=True)
