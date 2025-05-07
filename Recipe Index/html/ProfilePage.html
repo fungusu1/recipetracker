@@ -2,7 +2,7 @@
 
 <head>
   <meta charset="UTF-8">
-  <title>Profile - {{ user.username }}</title>
+  <title>Profile - #username</title>
   <link rel="stylesheet" href="../css/CRecipe.css">
   <link rel="stylesheet" href="../css/header.css">
   <link rel="stylesheet" href="../css/Profile.css">
@@ -16,28 +16,28 @@
   <!--Header-->
   <header class="header">
     <div class="header-left">
-        <a href="HomePage.html">Recipe Index</a>
-        <a href="Browser.html" class="nav-link">Breakfast</a>
-        <a href="Browser.html" class="nav-link">Lunch</a>
-        <a href="Browser.html" class="nav-link">Dinner</a>
+        <a href="/">Recipe Index</a>
+        <a href="/browse" class="nav-link">Breakfast</a>
+        <a href="/browse" class="nav-link">Lunch</a>
+        <a href="/browse" class="nav-link">Dinner</a>
     </div>
     <div class="header-center">
         <input type="text" placeholder="Search recipes...">
     </div>
     <div class="header-right">
-        <a href="Login.html" class="nav-link">Log In</a>
-        <a href="SignUp.html" class="nav-link">Sign Up</a>
-        <button onclick="location.href='CreateRecipe.html'">Create!</button>
-        <a href="ProfilePage.html" class="profile-link">Profile</a>
+        <a href="/login" class="nav-link">Log In</a>
+        <a href="/signup" class="nav-link">Sign Up</a>
+        <button onclick="location.href='/create'">Create!</button>
+        <a href="/profile" class="profile-link">Profile</a>
     </div>
-</header>
+  </header>
 
   <!-- Container wrapping everything -->
   <div class="container">
     <!-- Profile section -->
     <div class="profile">
       <div class="profile-left">
-        <img id="pfp" src="{{user.pfp_url}}" alt="User's profile picture"
+        <img id="pfp" src="#" alt="User's profile picture"
           onerror=this.src='../images/profile_placeholder.jpg'>
 
         <div class="socials-links">
@@ -48,7 +48,7 @@
       </div>
 
       <div class="profile-text">
-        <h1 class="username">{{ user.username }}</h1>
+        <h1 class="username">#username</h1>
         <p>user bio: lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum </p>
       </div>
     </div>
@@ -61,7 +61,7 @@
     <!-- Recipe Section (inside container, after profile) -->
     <div class="recipe-section">
       <div class="recipe-header">
-        <h1>{{ user.username }}'s Recipes</h1>
+        <h1>#username's Recipes</h1>
         <select id="sortDropdown" class="sort-dropdown">
           <option value="date">Date</option>
           <option value="rating">Rating</option>

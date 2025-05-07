@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>{{ recipe.title }}</title>
+  <title>#Recipe Title</title>
   <link rel="stylesheet" href="../css/VRecipe.css">
   <link rel="stylesheet" href="../css/header.css">
 </head>
@@ -12,67 +12,67 @@
   <!-- Header -->
   <header class="header">
     <div class="header-left">
-        <a href="HomePage.html">Recipe Index</a>
-        <a href="Browser.html" class="nav-link">Breakfast</a>
-        <a href="Browser.html" class="nav-link">Lunch</a>
-        <a href="Browser.html" class="nav-link">Dinner</a>
+        <a href="/">Recipe Index</a>
+        <a href="/browse" class="nav-link">Breakfast</a>
+        <a href="/browse" class="nav-link">Lunch</a>
+        <a href="/browse" class="nav-link">Dinner</a>
     </div>
     <div class="header-center">
         <input type="text" placeholder="Search recipes...">
     </div>
     <div class="header-right">
-        <a href="Login.html" class="nav-link">Log In</a>
-        <a href="SignUp.html" class="nav-link">Sign Up</a>
-        <button onclick="location.href='CreateRecipe.html'">Create!</button>
-        <a href="ProfilePage.html" class="profile-link">Profile</a>
+        <a href="/login" class="nav-link">Log In</a>
+        <a href="/signup" class="nav-link">Sign Up</a>
+        <button onclick="location.href='/create'">Create!</button>
+        <a href="/profile" class="profile-link">Profile</a>
     </div>
   </header>
 
   <!-- Recipe Content -->
   <div class="container">
-    <h1>{{ recipe.title }}</h1>
-    <p>{{ recipe.description }}</p>
+    <h1>recipe title</h1>
+    <p>#Recipe Description</p>
 
-    <p><strong>Cook Time:</strong> {{ recipe.cook_time }} minutes</p>
-    <p><strong>Servings:</strong> {{ recipe.servings }}</p>
+    <p><strong>Cook Time:</strong> #Time minutes</p>
+    <p><strong>Servings:</strong> #Servings</p>
 
     <h2>Ingredients</h2>
     <ul>
-      {% for ingredient in recipe.ingredients | fromjson %}
-        <li>{{ ingredient }}</li>
-      {% endfor %}
+      ?
+        <li>ingredient</li>
+      ?
     </ul>
 
     <h2>Instructions</h2>
     <ol>
-      {% for step in recipe.instructions | fromjson %}
-        <li>{{ step }}</li>
-      {% endfor %}
+      ?
+        <li>Step</li>
+      ?
     </ol>
 
-    {% if recipe.image_url %}
+    #Check if it does have a image
       <h2>Image</h2>
-      <img src="{{ recipe.image_url }}" alt="Recipe Image" class="recipe-image">
-    {% endif %}
+      <img src="#" alt="Recipe Image" class="recipe-image">
+    ?
 
-    <p><strong>Privacy:</strong> {{ recipe.privacy }}</p>
+    <p><strong>Privacy:</strong> #Recipe Privacy</p>
 
     <h2>Reviews</h2>
-    {% for review in recipe.reviews %}
+    
       <div class="review">
         <div class="stars">
-          {% for i in range(review.rating) %}
+          range?
             <span class="star">★</span>
-          {% endfor %}
-          {% for i in range(5 - review.rating) %}
+          ?
+          range?
             <span class="star" style="color: #ccc;">★</span>
-          {% endfor %}
+          ?
         </div>
-        <p>{{ review.comment }}</p>
+        <p> #Coment</p>
       </div>
-    {% else %}
+    else?
       <p>No reviews yet.</p>
-    {% endfor %}
+    end
 
     <button class="print-button" onclick="window.print()">Print Recipe</button>
   </div>
