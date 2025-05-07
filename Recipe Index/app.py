@@ -1,7 +1,8 @@
 import os
 from flask import Flask, render_template, send_from_directory, request, redirect, url_for
 # from models import db
-from models import db, Recipe, RecipeIngredient, Instruction, BaseIngredient
+from models import db, Recipe, RecipeIngredient, Instruction, BaseIngredient, User
+
 
 
 app = Flask(__name__, template_folder='html')
@@ -38,7 +39,7 @@ def create():
     if request.method == 'GET':
         # fetch base ingredients for the dropdown
         base_ingredients = BaseIngredient.query.order_by(BaseIngredient.name).all()
-        return render_template('create_recipe.html', base_ingredients=base_ingredients)
+        return render_template('CreateRecipe.html', base_ingredients=base_ingredients)
 
     # POST: parse and save the new recipe
     name        = request.form['title']
@@ -46,13 +47,24 @@ def create():
     cook_time   = int(request.form['cook_time'])
     servings    = int(request.form['servings'])
 
+    # TEMPORARY CHANGE UNTIL LOGINS ARE IMPLEMENTED
+    user = User.query.first()
+    if not user:
+        user = User(
+            email='default@example.com',
+            password='changeme', 
+            display_name='Default User'
+        )
+    db.session.add(user)
+    db.session.commit()  # now user.id exists
+
     # create Recipe
     recipe = Recipe(
         name=name,
         description=description,
         cook_time=cook_time,
         servings=servings,
-        user_id=None  # adjust if you have a user system
+        user_id=user.id
     )
     db.session.add(recipe)
     db.session.flush()  # assign recipe.id without commit
@@ -80,10 +92,7 @@ def create():
 
     db.session.commit()
     # temporary redirect to index until view page is ready
-    return redirect(url_for('index'))
-
-
-
+    return redirect(url_for('homepage'))
 
 @app.route('/browse')
 def browse():
