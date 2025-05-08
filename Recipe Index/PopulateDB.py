@@ -68,7 +68,7 @@ def main():
             num_ing = random.randint(3, 7)
             chosen = random.sample(all_ingredients, k=num_ing)
             for ingr in chosen:
-                qty = f"{random.randint(1, 500)} {ingr.default_unit or 'units'}"
+                qty = random.randint(1, 500)
                 db.session.add(RecipeIngredient(recipe_id=recipe.id, ingredient_id=ingr.id, quantity=qty))
 
             # Add instructions
