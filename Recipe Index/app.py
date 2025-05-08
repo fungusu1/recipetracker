@@ -1,7 +1,7 @@
 import os
 from flask import Flask, render_template, send_from_directory, request, redirect, url_for, jsonify
-# from models import db
-from models import db, Recipe, RecipeIngredient, Instruction, BaseIngredient, User
+from models import db, Recipe, RecipeIngredient, RecipeImage, Instruction, BaseIngredient, User
+from werkzeug.utils import secure_filename
 
 
 
@@ -11,6 +11,9 @@ base_dir = os.path.abspath(os.path.dirname(__file__))
 # Configure SQLite database
 app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{os.path.join(base_dir, 'database.db')}"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Define a default image upload location
+app.config['UPLOAD_FOLDER'] = os.path.join(app.root_path,'static', 'user_uploads')
 
 # Initialize SQLAlchemy
 db.init_app(app)
@@ -48,6 +51,12 @@ def add_base_ingredient():
     # return the new ingredient so JS can append it
     return jsonify(id=bi.id, name=bi.name, default_unit=bi.default_unit), 201
 
+# Check if an upload is an allowed filetype
+ALLOWED_EXTENSIONS = {'png','jpg','jpeg'}
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.',1)[1].lower() in ALLOWED_EXTENSIONS
+
 @app.route('/create', methods=['GET', 'POST'])
 def create():
     # return render_template('CreateRecipe.html')
@@ -70,6 +79,7 @@ def create():
             password='changeme', 
             display_name='Default User'
         )
+
     db.session.add(user)
     db.session.commit()  # now user.id exists
 
@@ -81,8 +91,23 @@ def create():
         servings=servings,
         user_id=user.id
     )
+
+    # add recipe to the DB
     db.session.add(recipe)
     db.session.flush()  # assign recipe.id without commit
+
+    # add images to the recipe
+    files = request.files.getlist('images')
+    upload_folder = app.config['UPLOAD_FOLDER']  # e.g. 'static/uploads'
+    for f in files:
+        if f and allowed_file(f.filename):
+            filename = secure_filename(f.filename)
+            save_path = os.path.join(upload_folder, filename)
+            f.save(save_path)
+            # assume you serve via '/static/uploads/...'
+            image_url = url_for('static', filename=f'user_uploads/{filename}')
+            img = RecipeImage(recipe_id=recipe.id, image_url=image_url)
+            db.session.add(img)
 
     # ingredients
     for ing_id, qty in zip(request.form.getlist('ingredient_id'),
