@@ -48,3 +48,43 @@ async function promptNewIngredient() {
     alert("Could not add new ingredient: " + err.message);
   }
 }
+
+// called by the ＋ Add Step button
+function addField(containerId, fieldName) {
+  const container = document.getElementById(containerId);
+  const template  = container.querySelector('.instruction-item');
+  const clone     = template.cloneNode(true);
+
+  // clear out the textarea
+  const ta = clone.querySelector(`textarea[name="${fieldName}"]`);
+  ta.value = '';
+
+  // show its remove button
+  const btn = clone.querySelector('.remove-btn');
+  btn.classList.remove('hidden');
+
+  // renumber all steps, including the new one
+  container.appendChild(clone);
+  renumberInstructions(container);
+
+  // wire its remove button
+  btn.addEventListener('click', () => {
+    removeInstructionField(btn);
+  });
+}
+
+function removeInstructionField(btn) {
+  const container = document.getElementById('instructions-container');
+  if (container.children.length > 1) {
+    btn.parentElement.remove();
+    renumberInstructions(container);
+  }
+}
+
+function renumberInstructions(container) {
+  container
+    .querySelectorAll('.instruction-item')
+    .forEach((item, idx) => {
+      item.querySelector('.item-label').textContent = (idx + 1) + '.';
+    });
+}
