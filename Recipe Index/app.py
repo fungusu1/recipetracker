@@ -13,7 +13,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{os.path.join(base_dir, 'dat
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Define a default image upload location
-app.config['UPLOAD_FOLDER'] = os.path.join(app.root_path,'static', 'user_uploads')
+app.config['UPLOAD_FOLDER'] = os.path.join(app.root_path, 'images')
 
 # Initialize SQLAlchemy
 db.init_app(app)
@@ -121,7 +121,7 @@ def create():
             save_path = os.path.join(upload_folder, filename)
             f.save(save_path)
             # assume you serve via '/static/uploads/...'
-            image_url = url_for('static', filename=f'user_uploads/{filename}')
+            image_url = url_for('images', filename=filename)
             img = RecipeImage(recipe_id=recipe.id, image_url=image_url)
             db.session.add(img)
 
