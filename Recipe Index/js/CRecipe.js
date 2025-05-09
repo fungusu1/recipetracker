@@ -36,16 +36,22 @@ async function promptNewIngredient() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name, default_unit: unit })
     });
-    if (!resp.ok) throw new Error(resp.statusText);
-    const ingr = await resp.json();
+    const data = await resp.json();
 
-    // add to datalist
-    const dl = document.getElementById('ingredient-list');
+    if (!resp.ok) {
+      // show the API’s error message in a simple popup
+      alert(data.error || "Could not add ingredient");
+      return;
+    }
+
+    // success: add to datalist
+    const dl  = document.getElementById('ingredient-list');
     const opt = document.createElement('option');
-    opt.value = ingr.name;
+    opt.value = data.name;
     dl.appendChild(opt);
+
   } catch (err) {
-    alert("Could not add new ingredient: " + err.message);
+    alert("Error adding ingredient: " + err.message);
   }
 }
 
