@@ -4,7 +4,6 @@ from models import db, Recipe, RecipeIngredient, RecipeImage, Instruction, BaseI
 from werkzeug.utils import secure_filename
 
 
-
 app = Flask(__name__, template_folder='html')
 base_dir = os.path.abspath(os.path.dirname(__file__))
 
@@ -110,15 +109,34 @@ def create():
             db.session.add(img)
 
     # ingredients
-    for ing_id, qty in zip(request.form.getlist('ingredient_id'),
-                           request.form.getlist('quantity')):
-        if ing_id and qty.strip():
-            ri = RecipeIngredient(
-                recipe_id=recipe.id,
-                ingredient_id=int(ing_id),
-                quantity=qty.strip()
-            )
-            db.session.add(ri)
+    # for ing_id, qty in zip(request.form.getlist('ingredient_name'),
+    #                        request.form.getlist('quantity')):
+    #     if ing_id and qty.strip():
+    #         ri = RecipeIngredient(
+    #             recipe_id=recipe.id,
+    #             ingredient_id=int(ing_id),
+    #             quantity=qty.strip()
+    #         )
+    #         db.session.add(ri)
+    for name, qty in zip(
+    request.form.getlist('ingredient_name'),
+    request.form.getlist('quantity')
+    ):
+        name = name.strip()
+        qty  = qty.strip()
+        if not name or not qty:
+            continue
+
+        base = BaseIngredient.query.filter_by(name=name).first()
+        if not base:
+            continue
+
+        ri = RecipeIngredient(
+            recipe_id     = recipe.id,
+            ingredient_id = base.id,
+            quantity      = qty
+        )
+        db.session.add(ri)
 
     # instructions
     for i, step in enumerate(request.form.getlist('instructions'), start=1):
