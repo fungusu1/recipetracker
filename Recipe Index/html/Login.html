@@ -30,16 +30,32 @@
     <!--  Page Content  -->
     <div class="login-container">
         <h1>Log In</h1>
-        <form onsubmit="return redirectToProfile()">
-            <label for="username">Email:</label>
-            <input type="text" id="username" name="username" required placeholder="example@email.com" maxlength="100">
 
-            <label for="password">Password:</label>
-            <input type="password" id="password" name="password" required>
+        <!-- Login flash msgs -->
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for msg in messages %}
+                    <p class="flash-msg">{{ msg }}</p>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
 
-            <button type="submit">Log In</button>
+        <!-- Altered to work with Flask + Jinja -->
+
+        <form method="POST">
+            {{ form.hidden_tag() }}
+
+            {{ form.email.label }}<br>
+            {{ form.email }}<br>
+
+            {{ form.password.label }}<br>
+            {{ form.password }}<br>
+
+            {{ form.submit }}
         </form>
-        <p>Don't have an account? <a href="/signup">Sign Up</a></p>
-
+        
+        <p>Don't have an account? <a href="{{ url_for('signup') }}">Sign Up</a></p>
+    </div>
+    
 </body>
 </html>

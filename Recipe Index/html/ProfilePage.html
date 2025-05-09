@@ -2,7 +2,7 @@
 
 <head>
   <meta charset="UTF-8">
-  <title>Profile - #username</title>
+  <title>Profile - {{ user.display_name }}</title>
   <link rel="stylesheet" href="../css/CRecipe.css">
   <link rel="stylesheet" href="../css/header.css">
   <link rel="stylesheet" href="../css/Profile.css">
@@ -48,7 +48,7 @@
       </div>
 
       <div class="profile-text">
-        <h1 class="username">#username</h1>
+        <h1 class="username">{{ user.display_name }}</h1>
         <p>user bio: lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum </p>
       </div>
     </div>
@@ -61,7 +61,7 @@
     <!-- Recipe Section (inside container, after profile) -->
     <div class="recipe-section">
       <div class="recipe-header">
-        <h1>#username's Recipes</h1>
+        <h1>{{ user.display_name }}'s Recipes</h1>
         <select id="sortDropdown" class="sort-dropdown">
           <option value="date">Date</option>
           <option value="rating">Rating</option>
