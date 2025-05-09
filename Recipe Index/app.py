@@ -2,6 +2,7 @@ import os
 from flask import Flask, render_template, send_from_directory, request, redirect, url_for, jsonify
 from models import db, Recipe, RecipeIngredient, RecipeImage, Instruction, BaseIngredient, User
 from werkzeug.utils import secure_filename
+from sqlalchemy import func
 
 
 app = Flask(__name__, template_folder='html')
@@ -38,17 +39,33 @@ def homepage():
 @app.route('/api/base_ingredients', methods=['POST'])
 def add_base_ingredient():
     data = request.get_json() or {}
-    name = data.get('name')
-    if not name:
+    raw_name = (data.get('name') or '').strip()
+    if not raw_name:
         return jsonify(error="Name is required"), 400
+    
+    # turn the name to title case
+    normalized = raw_name.title()
 
-    unit = data.get('default_unit')
-    bi = BaseIngredient(name=name, default_unit=unit)
+    # look for any existing ingredient with the same lowercase name
+    existing = BaseIngredient.query \
+        .filter(func.lower(BaseIngredient.name) == normalized.lower()) \
+        .first()
+
+    # if there is one just reuse the same entry
+    if existing:
+        return jsonify(error=f"‘{normalized}’ already exists"), 409
+
+    # otherwise create a new one
+    bi = BaseIngredient(
+        name=normalized,
+        default_unit=(data.get('default_unit') or '').strip() or None
+    )
     db.session.add(bi)
     db.session.commit()
 
-    # return the new ingredient so JS can append it
-    return jsonify(id=bi.id, name=bi.name, default_unit=bi.default_unit), 201
+    return jsonify(id=bi.id,
+                name=bi.name,
+                default_unit=bi.default_unit), 201
 
 # Check if an upload is an allowed filetype
 ALLOWED_EXTENSIONS = {'png','jpg','jpeg'}
@@ -109,15 +126,6 @@ def create():
             db.session.add(img)
 
     # ingredients
-    # for ing_id, qty in zip(request.form.getlist('ingredient_name'),
-    #                        request.form.getlist('quantity')):
-    #     if ing_id and qty.strip():
-    #         ri = RecipeIngredient(
-    #             recipe_id=recipe.id,
-    #             ingredient_id=int(ing_id),
-    #             quantity=qty.strip()
-    #         )
-    #         db.session.add(ri)
     for name, qty in zip(
     request.form.getlist('ingredient_name'),
     request.form.getlist('quantity')
