@@ -1,118 +1,126 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <title>Recipe Index</title>
-    <link rel="stylesheet" href="../css/CRecipe.css">
-    <link rel="stylesheet" href="../css/header.css">
-    <link rel="stylesheet" href="../css/Home.css">
+  <title>Recipe Index</title>
+  <link rel="stylesheet" href="../css/CRecipe.css">
+  <link rel="stylesheet" href="../css/header.css">
+  <link rel="stylesheet" href="../css/Home.css">
 </head>
+
 <body class="page-body">
-    <!--  Header  -->
-    <header class="header">
-        <div class="header-left">
-            <a href="/">Recipe Index</a>
-            <a href="/browse" class="nav-link">Breakfast</a>
-            <a href="/browse" class="nav-link">Lunch</a>
-            <a href="/browse" class="nav-link">Dinner</a>
-        </div>
-        <div class="header-center">
-            <input type="text" placeholder="Search recipes...">
-        </div>
-        <div class="header-right">
-            <a href="/login" class="nav-link">Log In</a>
-            <a href="/signup" class="nav-link">Sign Up</a>
-            <button onclick="location.href='/create'">Create!</button>
-            <a href="/profile" class="profile-link">Profile</a>
-        </div>
-      </header>
+  <!--  Header  -->
+  <header class="header">
+    <div class="header-left">
+      <a href="/">Recipe Index</a>
+      <a href="/browse" class="nav-link">Breakfast</a>
+      <a href="/browse" class="nav-link">Lunch</a>
+      <a href="/browse" class="nav-link">Dinner</a>
+    </div>
+    <div class="header-center">
+      <input type="text" placeholder="Search recipes...">
+    </div>
+    <div class="header-right">
+      <!-- Different header if user is logged in -->
+      {% if current_user.is_authenticated %}
+      <a href="/logout" class="nav-link">Log Out</a>
+      {% else %}
+      <a href="/login" class="nav-link">Log In</a>
+      <a href="/signup" class="nav-link">Sign Up</a>
+      {% endif %}
+      <button onclick="location.href='/create'">Create!</button>
+      <a href="/profile" class="profile-link">Profile</a>
+    </div>
+  </header>
 
-    <!--  Page Content  -->
-    <div class="welcome-box">
-        <h1>Welcome to Recipe Index</h1>
-        <p>Create, organise, and share your favourite recipes!</p>
-        <p>Explore a variety of recipes from different cuisines for different meal types.</p>
+  <!--  Page Content  -->
+  <div class="welcome-box">
+    <h1>Welcome to Recipe Index</h1>
+    <p>Create, organise, and share your favourite recipes!</p>
+    <p>Explore a variety of recipes from different cuisines for different meal types.</p>
 
-        <h2>Sign up to join our community and share your recipes with us today!</h2>
-        <button onclick="location.href='/signup'">Sign Up</button>
-        <button onclick="location.href='/login'">Log In</button>
+    <h2>Sign up to join our community and share your recipes with us today!</h2>
+    <button onclick="location.href='/signup'">Sign Up</button>
+    <button onclick="location.href='/login'">Log In</button>
+  </div>
+
+  <div class="browse-button-section">
+    <button onclick="location.href='/browse'">Browse All Recipes ></button>
+  </div>
+
+  <div class="top-recipes-section">
+    <h2>Top Recipes</h2>
+    <div class="top-recipes-grid">
+      <div class="recipe-preview" onclick="location.href='/recipe'">
+        <img src="../images/temporary_food.png" alt="Temporary Food" />
+        <h3>Recipe Title 1</h3>
+        <p>Rating: X/5</p>
+        <p class="author">by Author Name</p>
+      </div>
+      <div class="recipe-preview" onclick="location.href='/recipe'">
+        <img src="../images/temporary_food.png" alt="Temporary Food" />
+        <h3>Recipe Title 2</h3>
+        <p>Rating: X/5</p>
+        <p class="author">by Author Name</p>
+      </div>
+      <div class="recipe-preview" onclick="location.href='/recipe'">
+        <img src="../images/temporary_food.png" alt="Temporary Food" />
+        <h3>Recipe Title 3</h3>
+        <p>Rating: X/5</p>
+        <p class="author">by Author Name</p>
+      </div>
     </div>
-
-    <div class="browse-button-section">
-        <button onclick="location.href='/browse'">Browse All Recipes ></button>
+  </div>
+  <div class="top-profiles-section">
+    <h2>Top Chefs</h2>
+    <div class="profiles-grid">
+      <div class="single-profile">
+        <img src="../images/profile_placeholder.jpg" alt="User's Profile Picture" />
+        <h3 class="author">Profile_1</h3>
+        <p>Total Recipes: XXX</p>
+      </div>
+      <div class="single-profile">
+        <img src="../images/profile_placeholder.jpg" alt="User's Profile Picture" />
+        <h3 class="author">Profile_2</h3>
+        <p>Total Recipes: XXX</p>
+      </div>
+      <div class="single-profile">
+        <img src="../images/profile_placeholder.jpg" alt="User's Profile Picture" />
+        <h3 class="author">Profile_3</h3>
+        <p>Total Recipes: XXX</p>
+      </div>
     </div>
-
-    <div class="top-recipes-section">
-        <h2>Top Recipes</h2>
-        <div class="top-recipes-grid">
-            <div class="recipe-preview" onclick="location.href='/recipe'">
-                <img src="../images/temporary_food.png" alt="Temporary Food"/>
-                <h3>Recipe Title 1</h3>
-                <p>Rating: X/5</p>
-                <p class="author">by Author Name</p>
-            </div>
-            <div class="recipe-preview" onclick="location.href='/recipe'">
-                <img src="../images/temporary_food.png" alt="Temporary Food"/>
-                <h3>Recipe Title 2</h3>
-                <p>Rating: X/5</p>
-                <p class="author">by Author Name</p>
-            </div>
-            <div class="recipe-preview" onclick="location.href='/recipe'">
-                <img src="../images/temporary_food.png" alt="Temporary Food"/>
-                <h3>Recipe Title 3</h3>
-                <p>Rating: X/5</p>
-                <p class="author">by Author Name</p>
-            </div>
+  </div>
+  <div class="reviews-section">
+    <h2>Latest Reviews</h2>
+    <div class="reviews">
+      <div class="single-review">
+        <img src="../images/profile_placeholder.jpg" alt="User's Profile Picture" />
+        <div class="single-review-text">
+          <p><strong>Profile_1</strong> : <em>Recipe_1</em></p>
+          <p>So good! Really simple and delicious.</p>
+          <p>Rating: 4/5</p>
         </div>
-    </div>
-    <div class="top-profiles-section">
-        <h2>Top Chefs</h2>
-        <div class="profiles-grid">
-            <div class="single-profile">
-                <img src="../images/profile_placeholder.jpg" alt="User's Profile Picture"/>
-                <h3 class="author">Profile_1</h3>
-                <p>Total Recipes: XXX</p>
-            </div>
-            <div class="single-profile">
-                <img src="../images/profile_placeholder.jpg" alt="User's Profile Picture"/>
-                <h3 class="author">Profile_2</h3>
-                <p>Total Recipes: XXX</p>
-                </div>  
-            <div class="single-profile">
-                <img src="../images/profile_placeholder.jpg" alt="User's Profile Picture"/>
-                <h3 class="author">Profile_3</h3>
-                <p>Total Recipes: XXX</p>
-            </div>
-        </div> 
-    </div>
-    <div class="reviews-section">
-        <h2>Latest Reviews</h2>
-        <div class="reviews">
-            <div class="single-review">
-                <img src="../images/profile_placeholder.jpg" alt="User's Profile Picture"/>
-                <div class="single-review-text">
-                    <p><strong>Profile_1</strong> : <em>Recipe_1</em></p>
-                    <p>So good! Really simple and delicious.</p>
-                    <p>Rating: 4/5</p>
-                </div>
-            </div>
-            <div class="single-review">
-                <img src="../images/profile_placeholder.jpg" alt="User's Profile Picture"/>
-                <div class="single-review-text">
-                    <p><strong>Profile_2</strong> : <em>Recipe_2</em></p>
-                    <p>Not my favourite, but still not bad.</p>
-                    <p>Rating: 2.5/5</p>
-                </div>
-            </div>
-            <div class="single-review">
-                <img src="../images/profile_placeholder.jpg" alt="User's Profile Picture"/>
-                <div class="single-review-text">
-                    <p><strong>Profile_3</strong> : <em>Recipe_3</em></p>
-                    <p>Meh.</p>
-                    <p>Rating: 1.5/5</p>
-                </div>
-            </div>
+      </div>
+      <div class="single-review">
+        <img src="../images/profile_placeholder.jpg" alt="User's Profile Picture" />
+        <div class="single-review-text">
+          <p><strong>Profile_2</strong> : <em>Recipe_2</em></p>
+          <p>Not my favourite, but still not bad.</p>
+          <p>Rating: 2.5/5</p>
         </div>
+      </div>
+      <div class="single-review">
+        <img src="../images/profile_placeholder.jpg" alt="User's Profile Picture" />
+        <div class="single-review-text">
+          <p><strong>Profile_3</strong> : <em>Recipe_3</em></p>
+          <p>Meh.</p>
+          <p>Rating: 1.5/5</p>
+        </div>
+      </div>
     </div>
+  </div>
 
 </body>
+
 </html>

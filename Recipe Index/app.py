@@ -46,7 +46,6 @@ def images(filename):
 #Page Routing
 @app.route('/')
 def homepage():
-    print("Flas is running")
     return render_template('HomePage.html')
 
 @app.route('/create')
@@ -64,6 +63,7 @@ def view_recipe():
 @app.route('/profile')
 @login_required
 def profile():
+    flash(f'Welcome back, {current_user.display_name}', 'greeting')
     return render_template('ProfilePage.html', user=current_user)
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -73,17 +73,17 @@ def login():
         user = User.query.filter_by(email=form.email.data).first()
         if user and check_password_hash(user.password, form.password.data):
             login_user(user)
-            flash('Successfully logged in.')
+            flash('Successfully logged in.', 'success')
             return redirect(url_for('profile'))
-        flash('Invalid email or password')
+        flash('Invalid email or password', 'error')
     return render_template('Login.html', form=form)
 
 @app.route('/logout')
 @login_required
 def logout():
     logout_user()
-    flash('Successfully logged out!!!')
-    return redirect(url_for('login'))
+    flash('You have been logged out ;(', 'logout')
+    return redirect(url_for('homepage'))
 
 @app.route('/signup')
 def signup():

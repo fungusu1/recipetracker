@@ -130,4 +130,18 @@
     font-size: 0.9rem;
     border-radius: 0.15rem;
     border: 1px solid #ccc;
-  }
+}
+
+/* Flash Messages */
+.flash-msg {
+    background-color: #dff0d8;
+    color: rgb(17, 17, 17);
+    padding : 1rem;
+    border : 0.75px solid #dff0d8;
+    border-radius: 0.25rem;
+    font-weight: bold;
+    text-align: center;
+    margin: 1rem 0;
+    width: fit-content;
+    align-content: center;
+}
