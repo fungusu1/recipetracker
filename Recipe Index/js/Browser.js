@@ -1,5 +1,5 @@
 $(document).ready(function() {
-  let ingredientCount = 1;
+  let ingredientCount = $('#ingredients-search-container .ingredient-search-item').length;
 
   const searchBtn = $('<button type="submit" class="search-btn">Search</button>');
 
@@ -14,6 +14,16 @@ $(document).ready(function() {
         lastGroup.find('.unit-label').after(searchBtn);
       }
     }
+  }
+
+  function initializeAllSelect2() {
+    $('#ingredients-search-container select').each(function() {
+      $(this).select2({
+        placeholder: "-- Select ingredient --",
+        allowClear: true,
+        width: '200px'
+      });
+    });
   }
 
   function createIngredientGroup(idx) {
@@ -38,12 +48,18 @@ $(document).ready(function() {
       const selected = $(this).val();
       const unit = ingredientUnits[selected] || '';
       group.find('.unit-label').text(unit ? '(' + unit + ')' : '');
+      updateIngredientOptions();
     });
-    // Remove button
     const removeBtn = $('<button type="button" class="remove-ingredient-btn">✕</button>');
     removeBtn.on('click', function() {
-      group.remove();
-      moveSearchButton();
+      if ($('#ingredients-search-container .ingredient-search-item').length > 1) {
+        group.remove();
+        moveSearchButton();
+      } else {
+        group.find('select').val('').trigger('change');
+        group.find('input[type=number]').val('');
+        group.find('.unit-label').text('');
+      }
     });
     group.find('.unit-label').after(removeBtn);
     return group;
@@ -53,13 +69,15 @@ $(document).ready(function() {
   $('#add-ingredient-btn').on('click', function() {
     const group = createIngredientGroup(ingredientCount++);
     $('#ingredients-search-container').append(group);
-
     group.find('select').select2({
       placeholder: "-- Select ingredient --",
       allowClear: true,
       width: '200px'
+    }).on('change', function() {
+      updateIngredientOptions();
     });
     moveSearchButton();
+    updateIngredientOptions();
   });
 
   function getQueryParams() {
@@ -84,49 +102,29 @@ $(document).ready(function() {
   }
   const hasSearch = ingredients.some(i => i && i.trim() !== "");
 
+  function attachRemoveHandlers() {
+    $('.remove-ingredient-btn').off('click').on('click', function() {
+      const group = $(this).closest('.ingredient-search-item');
+      // Only remove if it's not the first row
+      if (group.index() > 0) {
+        group.remove();
+        moveSearchButton();
+      }
+    });
+  }
 
-  if (ingredients.length > 0) {
-    $('#ingredients-search-container').empty();
-    for (let i = 0; i < ingredients.length; i++) {
-      const group = createIngredientGroup(i);
-      $('#ingredients-search-container').append(group);
-
-      const $select = group.find('select');
-      $select.select2({
-        placeholder: "-- Select ingredient --",
-        allowClear: true,
-        width: '200px'
-      });
-
-      setTimeout(() => {
-        $select.val(ingredients[i]);
-        $select.trigger('change');
-        $select.trigger({
-          type: 'select2:select',
-          params: {
-            data: { id: ingredients[i], text: ingredients[i] }
-          }
-        });
-      }, 50);
-
-      if (params['servings'] && params['servings'][i]) group.find('input[type=number]').val(params['servings'][i]);
-    }
-    ingredientCount = ingredients.length;
-    moveSearchButton();
-  } else {
-    const firstGroup = $('#ingredients-search-container .ingredient-search-item').first();
-    firstGroup.find('select').select2({
+  $('#ingredients-search-container select').each(function() {
+    $(this).select2({
       placeholder: "-- Select ingredient --",
       allowClear: true,
       width: '200px'
+    }).on('change', function() {
+      updateIngredientOptions();
     });
-    firstGroup.find('select').on('change', function() {
-      const selected = $(this).val();
-      const unit = ingredientUnits[selected] || '';
-      firstGroup.find('.unit-label').text(unit ? '(' + unit + ')' : '');
-    });
-    moveSearchButton();
-  }
+  });
+  updateIngredientOptions();
+  attachRemoveHandlers();
+  moveSearchButton();
 
   if (hasSearch && typeof recipeMissingAmounts !== 'undefined') {
     Object.keys(recipeMissingAmounts).forEach(function(recipeId) {
@@ -134,6 +132,37 @@ $(document).ready(function() {
       if (missingList.length > 0) {
         console.log('Recipe', recipeId, 'missing:', missingList.join(', '));
       }
+    });
+  }
+
+  function updateIngredientOptions() {
+    // Get all selected ingredient values (excluding empty)
+    const selected = [];
+    $('#ingredients-search-container select').each(function() {
+      const val = $(this).val();
+      if (val) selected.push(val);
+    });
+
+    $('#ingredients-search-container select').each(function() {
+      const $select = $(this);
+      const currentVal = $select.val();
+
+      // For each option, disable if it's selected in another select
+      $select.find('option').each(function() {
+        const optionVal = $(this).val();
+        if (
+          optionVal &&
+          optionVal !== currentVal &&
+          selected.includes(optionVal)
+        ) {
+          $(this).attr('disabled', 'disabled');
+        } else {
+          $(this).removeAttr('disabled');
+        }
+      });
+
+      // Refresh Select2
+      $select.trigger('change.select2');
     });
   }
 }); 
