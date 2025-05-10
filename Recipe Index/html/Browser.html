@@ -8,7 +8,9 @@
   <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
   <script src="../js/Browser.js"></script>
   <script>var ingredientUnits = {{ ingredient_units|tojson }};</script>
-  <script>var recipeMissingIngredients = {{ recipe_missing_ingredients|tojson }};</script>
+  <script>
+    var recipeMissingIngredients = {{ recipe_missing_ingredients|tojson }};
+  </script>
 </head>
 
 <body class="page-body">
@@ -38,20 +40,50 @@
     <form class="search-bar" method="get" action="/browse">
       <div class="search-bar-fields">
         <div id="ingredients-search-container">
-          <div class="ingredient-search-item">
-            <label for="ingredient-0">Ingredient:</label>
-            <select id="ingredient-0" name="ingredient[]">
-              <option value="">-- Select ingredient --</option>
-              {% for option in ingredients %}
-                <option value="{{ option.name }}">{{ option.name }}</option>
-              {% endfor %}
-            </select>
-            <span class="amount-group">
-              <label for="amount-0" class="amount-label">Amount:</label>
-              <input type="number" id="amount-0" name="servings[]" min="1" placeholder="e.g. 4">
-              <span class="unit-label"></span>
-            </span>
-          </div>
+          {% if selected_ingredients and selected_ingredients|length > 0 %}
+            {% for idx in range(selected_ingredients|length) %}
+              <div class="ingredient-search-item">
+                <label for="ingredient-{{ idx }}">Ingredient:</label>
+                <select id="ingredient-{{ idx }}" name="ingredient[]">
+                  <option value="">-- Select ingredient --</option>
+                  {% for option in ingredients %}
+                    <option value="{{ option.name }}"
+                      {% if selected_ingredients[idx] == option.name %}selected{% endif %}>
+                      {{ option.name }}
+                    </option>
+                  {% endfor %}
+                </select>
+                <span class="amount-group">
+                  <label for="amount-{{ idx }}" class="amount-label">Amount:</label>
+                  <input type="number" id="amount-{{ idx }}" name="servings[]" min="1" placeholder="e.g. 4"
+                    value="{% if selected_servings and selected_servings[idx] %}{{ selected_servings[idx] }}{% endif %}">
+                  <span class="unit-label">
+                    {% if selected_ingredients[idx] %}
+                      ({{ ingredient_units[selected_ingredients[idx]] }})
+                    {% endif %}
+                  </span>
+                </span>
+                {% if idx != 0 %}
+                  <button type="button" class="remove-ingredient-btn">✕</button>
+                {% endif %}
+              </div>
+            {% endfor %}
+          {% else %}
+            <div class="ingredient-search-item">
+              <label for="ingredient-0">Ingredient:</label>
+              <select id="ingredient-0" name="ingredient[]">
+                <option value="">-- Select ingredient --</option>
+                {% for option in ingredients %}
+                  <option value="{{ option.name }}">{{ option.name }}</option>
+                {% endfor %}
+              </select>
+              <span class="amount-group">
+                <label for="amount-0" class="amount-label">Amount:</label>
+                <input type="number" id="amount-0" name="servings[]" min="1" placeholder="e.g. 4">
+                <span class="unit-label"></span>
+              </span>
+            </div>
+          {% endif %}
         </div>
       </div>
       <div class="add-ingredient-bar">
@@ -73,15 +105,30 @@
         <option value="quantity-asc" {% if selected_sort == 'quantity-asc' %}selected{% endif %}>Least Quantity</option>
       </select>
     </form>
+    
     <!-- Recipes -->
     <div class="recipe-listing">
       {% for recipe in recipes %}
       <div class="recipe-preview" data-recipe-id="{{ recipe.id }}" onclick="location.href='/recipe?id={{ recipe.id }}'">
-        <img src="../images/temporary_food.png" alt="Recipe Image">
+        <img src="{{ recipe_images[recipe.id] }}" alt="Recipe Image">
         <h3>{{ recipe.name }}</h3>
         <p>{{ recipe.description }}</p>
-        <p><strong>Cook Time:</strong> {{ recipe.cook_time }} mins</p>
-        <p><strong>Quantity:</strong> Serves {{ recipe.servings }}</p>
+        <div class="recipe-meta">
+          <span><strong>Cook Time:</strong> {{ recipe.cook_time }} mins</span>
+          <span class="meta-divider">|</span>
+          <span><strong>Quantity:</strong> Serves {{ recipe.servings }}</span>
+        </div>
+        {% if selected_ingredients and selected_ingredients|length > 0 %}
+          {% set missing = recipe_missing_amounts.get(recipe.id, []) %}
+          {% if missing and missing|length > 0 %}
+            <div class="missing-ingredients-list">
+              <div class="missing-header">Missing:</div>
+              {% for miss in missing %}
+                <div class="missing-ingredient">{{ miss }}</div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endif %}
       </div>
       {% else %}
       <p>No recipes found.</p>
