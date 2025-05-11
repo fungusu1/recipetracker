@@ -2,7 +2,8 @@ import os
 from flask import Flask, render_template, send_from_directory, redirect, url_for, request, jsonify, session, flash
 from models import db, User, Recipe, RecipeIngredient, RecipeImage, Instruction, BaseIngredient
 from flask_sqlalchemy import SQLAlchemy
-from werkzeug.utils import secure_filename, generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
+from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import func
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from forms import SignUpForm, LoginForm
