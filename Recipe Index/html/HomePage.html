@@ -40,8 +40,14 @@
     <p>Explore a variety of recipes from different cuisines for different meal types.</p>
 
     <h2>Sign up to join our community and share your recipes with us today!</h2>
+    {% if current_user.is_authenticated %}
+    <p><strong><u>Welcome back, {{ current_user.display_name }}!</u></strong></p>
+    <button onclick="location.href='/profile'">Go to Profile</button>
+    <button onclick="location.href='/create'">Create a Recipe</button>
+    {% else %}
     <button onclick="location.href='/signup'">Sign Up</button>
     <button onclick="location.href='/login'">Log In</button>
+    {% endif %}
   </div>
 
   <div class="browse-button-section">

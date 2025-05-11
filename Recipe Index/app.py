@@ -29,6 +29,7 @@ db.init_app(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
+login_manager.login_message = None
 
 # Function to load users
 @login_manager.user_loader
@@ -91,6 +92,7 @@ def allowed_file(filename):
            filename.rsplit('.',1)[1].lower() in ALLOWED_EXTENSIONS
 
 @app.route('/create', methods=['GET', 'POST'])
+@login_required
 def create():
     # return render_template('CreateRecipe.html')
     if request.method == 'GET':
@@ -104,17 +106,8 @@ def create():
     cook_time   = int(request.form['cook_time'])
     servings    = int(request.form['servings'])
 
-    # TEMPORARY CHANGE UNTIL LOGINS ARE IMPLEMENTED
-    user = User.query.first()
-    if not user:
-        user = User(
-            email='default@example.com',
-            password='changeme', 
-            display_name='Default User'
-        )
-
-    db.session.add(user)
-    db.session.commit()  # now user.id exists
+    # check if the user is logged in
+    user = current_user
 
     # create Recipe
     recipe = Recipe(
@@ -194,6 +187,12 @@ def profile():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
+
+    if request.args.get("next") == "/create":
+        flash("Please log in to create a recipe", "error")
+    elif request.args.get("next") == "/profile":
+        flash("Please log in to view your profile", "error")
+
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
         if user and check_password_hash(user.password, form.password.data):
