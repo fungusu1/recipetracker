@@ -112,7 +112,8 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-top: 1rem;
+    margin-top: 0.5rem;
+    gap: 1rem;
   }
 
   .flash-msg {
@@ -171,4 +172,14 @@ body {
     text-align: center;
     margin: 1rem auto;
     width: fit-content;
+  }
+
+  .form-error {
+    color: #d52424;
+    background-color: #ffe8e8;
+    border-left: 4px solid #b30000;
+    padding: 6px 10px;
+    font-size: 0.9rem;
+    border-radius: 3px;
+    margin-top: 0.25rem;
   }

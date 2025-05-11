@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template, send_from_directory, redirect, url_for, request, jsonify, session, flash
+from flask import Flask, render_template, send_from_directory, redirect, url_for, request, jsonify, session, flash, get_flashed_messages
 from models import db, User, Recipe, RecipeIngredient, RecipeImage, Instruction, BaseIngredient
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.utils import secure_filename
@@ -188,15 +188,18 @@ def profile():
 def login():
     form = LoginForm()
 
+    # Redirect to login page from other pages requiring login
     if request.args.get("next") == "/create":
         flash("Please log in to create a recipe", "error")
     elif request.args.get("next") == "/profile":
         flash("Please log in to view your profile", "error")
 
+    # Handle login form submission
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
         if user and check_password_hash(user.password, form.password.data):
             login_user(user)
+            get_flashed_messages()
             flash('Successfully logged in.', 'success')
             return redirect(url_for('profile'))
         flash('Invalid email or password', 'error')
@@ -209,9 +212,32 @@ def logout():
     flash('You have been logged out ;(', 'logout')
     return redirect(url_for('homepage'))
 
-@app.route('/signup')
+@app.route('/signup', methods=['GET', 'POST'])
 def signup():
-    return render_template('SignUp.html')
+    form = SignUpForm()
+
+    if form.validate_on_submit():
+        # Checking if email/user already exists
+        existing_user = User.query.filter_by(email=form.email.data).first()
+        if existing_user:
+            flash('An account with that email already exists.', 'error')
+            return redirect(url_for('signup'))
+    
+        # Hash password
+        hashed_pw = generate_password_hash(form.password.data)
+
+        # Create user
+        new_user = User(
+            email=form.email.data,
+            password=hashed_pw,
+            display_name=form.display_name.data
+        )
+        db.session.add(new_user)
+        db.session.commit()
+        flash('Great! Successfully signed up! Please log in.', 'success')
+        return redirect(url_for('login'))
+    
+    return render_template('SignUp.html', form=form)
 
 #Run Server
 if __name__ == '__main__':

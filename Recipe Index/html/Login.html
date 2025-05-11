@@ -32,14 +32,14 @@
     </div>
   </header>
 
-  <!-- Login flash msgs -->
+  <!-- Flash msgs -->
   <div class="flash-container">
     {% with messages = get_flashed_messages(with_categories=True) %}
-    {% if messages %}
-    {% for category, msg in messages %}
-    <p class="flash-msg {{ category }}">{{ msg }}</p>
-    {% endfor %}
-    {% endif %}
+      {% if messages %}
+        {% for category, msg in messages %}
+          <p class="flash-msg {{ category }}">{{ msg }}</p>
+        {% endfor %}
+      {% endif %}
     {% endwith %}
   </div>
 
@@ -47,16 +47,20 @@
   <div class="login-container">
     <h1>Log In</h1>
 
-    <!-- Altered to work with Flask + Jinja -->
+    <!-- Altered to work with Flask -->
 
     <form method="POST">
       {{ form.hidden_tag() }}
 
-      {{ form.email.label }}<br>
-      {{ form.email }}<br>
+      <div class="field-block">
+        {{ form.email.label }}:<br>
+        {{ form.email }}<br>
+      </div>
 
-      {{ form.password.label }}<br>
-      {{ form.password }}<br>
+      <div class="field-block">
+        {{ form.password.label }}:<br>
+        {{ form.password }}<br>
+      </div>
 
       {{ form.submit }}
     </form>

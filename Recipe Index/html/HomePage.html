@@ -33,6 +33,17 @@
     </div>
   </header>
 
+  <!-- Flash msgs -->
+  <div class="flash-container">
+    {% with messages = get_flashed_messages(with_categories=True) %}
+      {% if messages %}
+        {% for category, msg in messages %}
+          <p class="flash-msg {{ category }}">{{ msg }}</p>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+  </div>
+
   <!--  Page Content  -->
   <div class="welcome-box">
     <h1>Welcome to Recipe Index</h1>
