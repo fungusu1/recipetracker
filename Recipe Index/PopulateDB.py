@@ -2,6 +2,7 @@ import sys
 import random
 import json
 from faker import Faker
+from werkzeug.security import generate_password_hash
 
 from app import app
 from models import db, User, BaseIngredient, Recipe, RecipeIngredient, Instruction, RecipeImage
@@ -39,8 +40,9 @@ def main():
         for _ in range(num_users):
             email = fake.unique.email()
             password = fake.password(length=12)
+            hashed_pw = generate_password_hash(password)
             display_name = fake.name()
-            user = User(email=email, password=password, display_name=display_name)
+            user = User(email=email, password=hashed_pw, display_name=display_name)
             db.session.add(user)
             users.append(user)
         db.session.commit()
