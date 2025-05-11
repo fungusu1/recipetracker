@@ -44,7 +44,7 @@ class RecipeIngredient(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     recipe_id = db.Column(db.Integer, db.ForeignKey('recipes.id'), nullable=False)
     ingredient_id = db.Column(db.Integer, db.ForeignKey('base_ingredients.id'), nullable=False)
-    quantity = db.Column(db.String(20))
+    quantity = db.Column(db.Float)
 
 # Recipes' Instructions Table
 class Instruction(db.Model):
