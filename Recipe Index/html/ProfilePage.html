@@ -1,5 +1,4 @@
 <html>
-
 <head>
   <meta charset="UTF-8">
   <title>Profile - {{ user.display_name }}</title>
@@ -52,40 +51,109 @@
     <!-- Profile section -->
     <div class="profile">
       <div class="profile-left">
-        <img id="pfp" src="#" alt="User's profile picture"
-          onerror=this.src='../images/profile_placeholder.jpg'>
-
-        <div class="socials-links">
-          <span class="material-symbols-outlined"> mail </span>
-          <span class="material-symbols-outlined"> center_focus_weak </span>
-          <span class="material-symbols-outlined"> raven </span>
-        </div>
+        <img id="pfp" src="{{ user.profile_image.image_url if user.profile_image else url_for('images', filename='profile_placeholder.jpg') }}" alt="User's profile picture"
+          onerror="this.src='../images/profile_placeholder.jpg'">
       </div>
 
       <div class="profile-text">
         <h1 class="username">{{ user.display_name }}</h1>
-        <p>user bio: lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum </p>
+        {% if user.profile_description %}
+          <p>{{ user.profile_description }}</p>
+        {% else %}
+          <p style="color: #888; font-style: italic;">They have no bio ;(</p>
+        {% endif %}
+        {% if current_user.is_authenticated and current_user.id == user.id %}
+        <button class="edit-profile-btn" onclick="window.location.href='/profile/edit'">Edit Profile</button>
+        {% endif %}
       </div>
     </div>
     
     <div class="avg-rating">
-      <span class="material-symbols-outlined"> star </span>
-      <p>average rating: 0/5</p>
+      <span class="star-rating">
+        {% set avg = user.average_recipe_rating %}
+        {% set avg_rounded = (avg * 4)|round|float / 4 %}
+        <span class="stars-row">
+          {% for i in range(5) %}
+            {% set star_val = avg_rounded - i %}
+            {% if star_val >= 0.75 %}
+              <span class="star full">&#9733;</span>
+            {% elif (star_val - 0.5)|round(2) == 0 %}
+              <span class="star half">&#9733;</span>
+            {% else %}
+              <span class="star empty">&#9733;</span>
+            {% endif %}
+          {% endfor %}
+        </span>
+        <div class="avg-rating-number">{{ avg_rounded }}/5</div>
+      </span>
     </div>
 
     <!-- Recipe Section (inside container, after profile) -->
     <div class="recipe-section">
       <div class="recipe-header">
         <h1>{{ user.display_name }}'s Recipes</h1>
-        <select id="sortDropdown" class="sort-dropdown">
-          <option value="date">Date</option>
-          <option value="rating">Rating</option>
-          <option value="title">Title</option>
+        <select id="sortDropdown" class="sort-dropdown" onchange="window.location.search='?sort='+this.value;">
+          <option value="title" {% if selected_sort == 'title' or not selected_sort %}selected{% endif %}>Alphabetically</option>
+          <option value="rating" {% if selected_sort == 'rating' %}selected{% endif %}>Rating</option>
+          <option value="cook-time" {% if selected_sort == 'cook-time' %}selected{% endif %}>Cook time</option>
+          <option value="quantity" {% if selected_sort == 'quantity' %}selected{% endif %}>Quantity</option>
         </select>  
       </div>
       
-      <div class="recipe-grid" id="recipeGrid"></div>
+      <div class="browser-grid" id="profileRecipeGrid">
+        {% for recipe in recipes %}
+          <a href="/recipe?id={{ recipe.id }}" style="text-decoration: none; color: inherit;" class="profile-recipe-link{% if loop.index > 3 %} hidden-card{% endif %}">
+            <div class="browser-card">
+              <div class="browser-card-img-container">
+                <img class="browser-card-img"
+                     src="{{ recipe.images[0].image_url if recipe.images else url_for('images', filename='no-image-available-icon-vector.jpg') }}"
+                     alt="{{ recipe.name }}"
+                     onerror="this.src='{{ url_for('images', filename='no-image-available-icon-vector.jpg')}}'">
+              </div>
+              <div class="browser-card-content">
+                <h2 class="browser-card-title">{{ recipe.name }}</h2>
+                <p class="browser-card-desc">
+                  {{ recipe.description }}
+                </p>
+                <div class="browser-card-meta">
+                  <span><b>Cook Time:</b> {{ recipe.cook_time }} mins</span> |
+                  <span><b>Quantity:</b> Serves {{ recipe.servings }}</span>
+                </div>
+                <div class="browser-card-rating">
+                  Rating: {{ recipe.average_rating|default(0)|float|round(1) }} / 5
+                </div>
+              </div>
+            </div>
+          </a>
+        {% endfor %}
+      </div>
+      {% if recipes|length > 3 %}
       <button class="expand-btn" id="expandBtn">Show more</button>
+      <script>
+        const grid = document.getElementById('profileRecipeGrid');
+        const cards = grid.querySelectorAll('.profile-recipe-link');
+        const btn = document.getElementById('expandBtn');
+        let expanded = false;
+        function updateGrid() {
+          cards.forEach((card, i) => {
+            if (i < 3) {
+              card.classList.remove('hidden-card');
+            } else {
+              card.classList.toggle('hidden-card', !expanded);
+            }
+          });
+          btn.textContent = expanded ? 'Show less' : 'Show more';
+        }
+        btn.addEventListener('click', function() {
+          expanded = !expanded;
+          updateGrid();
+        });
+        updateGrid();
+      </script>
+      <style>
+        .hidden-card { display: none !important; }
+      </style>
+      {% endif %}
     </div>
   </div>
 </body>
