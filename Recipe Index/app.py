@@ -1,11 +1,17 @@
 import os
-from flask import Flask, render_template, send_from_directory, request, redirect, url_for, jsonify
-from models import db, Recipe, RecipeIngredient, RecipeImage, Instruction, BaseIngredient, User
+from flask import Flask, render_template, send_from_directory, redirect, url_for, request, jsonify, session, flash, get_flashed_messages
+from models import db, User, Recipe, RecipeIngredient, RecipeImage, Instruction, BaseIngredient
 from werkzeug.utils import secure_filename
+from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import func
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from forms import SignUpForm, LoginForm
 
 app = Flask(__name__, template_folder='html')
 base_dir = os.path.abspath(os.path.dirname(__file__))
+
+# Set a secret key (session management)
+app.config['SECRET_KEY'] = 'super_duper_secret_key'
 
 # Configure SQLite database
 app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{os.path.join(base_dir, 'database.db')}"
@@ -16,6 +22,17 @@ app.config['UPLOAD_FOLDER'] = os.path.join(app.root_path, 'images')
 
 # Initialize SQLAlchemy
 db.init_app(app)
+
+# Login manager
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
+login_manager.login_message = None
+
+# Function to load users
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
@@ -58,7 +75,7 @@ def add_base_ingredient():
 
     # if there is one just reuse the same entry
     if existing:
-        return jsonify(error=f"‘{normalized}’ already exists"), 409
+        return jsonify(error=f"'{normalized}' already exists"), 409
 
     # otherwise create a new one
     bi = BaseIngredient(
@@ -73,6 +90,7 @@ def add_base_ingredient():
                 default_unit=bi.default_unit), 201
 
 @app.route('/create', methods=['GET', 'POST'])
+@login_required
 def create():
     if request.method == 'GET':
         base_ingredients = BaseIngredient.query.order_by(BaseIngredient.name).all()
@@ -84,16 +102,8 @@ def create():
     cook_time   = int(request.form['cook_time'])
     servings    = int(request.form['servings'])
 
-    # TEMPORARY CHANGE UNTIL LOGINS ARE IMPLEMENTED
-    user = User.query.first()
-    if not user:
-        user = User(
-            email='default@example.com',
-            password='changeme',
-            display_name='Default User'
-        )
-        db.session.add(user)
-        db.session.commit()
+    # Use current_user instead of querying for a default user
+    user = current_user
 
     # create Recipe
     recipe = Recipe(
@@ -171,7 +181,6 @@ def browse():
         if base_ingredient:
             selected_ingredient_ids.append(base_ingredient.id)
             selected_ingredient_names.append(base_ingredient.name)
-
 
     recipe_ids_with_any = set()
     if selected_ingredient_ids:
@@ -261,17 +270,67 @@ def view_recipe():
     return render_template('ViewRecipe.html')
 
 @app.route('/profile')
+@login_required
 def profile():
-    return render_template('ProfilePage.html')
+    flash(f'Welcome back, {current_user.display_name}', 'greeting')
+    return render_template('ProfilePage.html', user=current_user)
 
-@app.route('/login')
+@app.route('/login', methods=['GET', 'POST'])
 def login():
-    return render_template('Login.html')
+    form = LoginForm()
 
-@app.route('/signup')
+    # Redirect to login page from other pages requiring login
+    if request.args.get("next") == "/create":
+        flash("Please log in to create a recipe", "error")
+    elif request.args.get("next") == "/profile":
+        flash("Please log in to view your profile", "error")
+
+    # Handle login form submission
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        if user and check_password_hash(user.password, form.password.data):
+            login_user(user)
+            get_flashed_messages()
+            flash('Successfully logged in.', 'success')
+            return redirect(url_for('profile'))
+        flash('Invalid email or password', 'error')
+    return render_template('Login.html', form=form)
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    flash('You have been logged out ;(', 'logout')
+    return redirect(url_for('homepage'))
+
+@app.route('/signup', methods=['GET', 'POST'])
 def signup():
-    return render_template('SignUp.html')
+    form = SignUpForm()
+
+    if form.validate_on_submit():
+        # Checking if email/user already exists
+        existing_user = User.query.filter_by(email=form.email.data).first()
+        if existing_user:
+            flash('An account with that email already exists.', 'error')
+            return redirect(url_for('signup'))
+    
+        # Hash password
+        hashed_pw = generate_password_hash(form.password.data)
+
+        # Create user
+        new_user = User(
+            email=form.email.data,
+            password=hashed_pw,
+            display_name=form.display_name.data
+        )
+        db.session.add(new_user)
+        db.session.commit()
+        flash('Great! Successfully signed up! Please log in.', 'success')
+        return redirect(url_for('login'))
+    
+    return render_template('SignUp.html', form=form)
 
 #Run Server
 if __name__ == '__main__':
     app.run(debug=True)
+
