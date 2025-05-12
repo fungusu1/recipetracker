@@ -87,7 +87,8 @@ function displayRecipe(recipe) {
 }
 
 // Get recipe ID from URL
-const urlParams = new URLSearchParams(window.location.search);
-const recipeId = urlParams.get('id');
-const recipe = getRecipeById(recipeId);
-displayRecipe(recipe);
+(async () => {
+  const recipeId = new URLSearchParams(window.location.search).get('id');
+  const recipe = await getRecipeById(recipeId);
+  displayRecipe(recipe);
+})();
