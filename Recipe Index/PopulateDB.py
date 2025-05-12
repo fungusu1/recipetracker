@@ -3,9 +3,10 @@ import random
 import json
 from faker import Faker
 from werkzeug.security import generate_password_hash
+from datetime import datetime
 
 from app import app
-from models import db, User, BaseIngredient, Recipe, RecipeIngredient, Instruction, RecipeImage
+from models import db, User, BaseIngredient, Recipe, RecipeIngredient, Instruction, RecipeImage, Rating, UserProfileImage
 
 
 def main():
@@ -42,9 +43,16 @@ def main():
             password = fake.password(length=12)
             hashed_pw = generate_password_hash(password)
             display_name = fake.name()
-            user = User(email=email, password=hashed_pw, display_name=display_name)
+            profile_description = fake.paragraph(nb_sentences=3)
+            user = User(email=email, password=hashed_pw, display_name=display_name, profile_description=profile_description)
             db.session.add(user)
             users.append(user)
+        db.session.commit()
+
+        # Add a profile image
+        for user in users:
+            profile_img_url = fake.image_url(width=256, height=256)
+            db.session.add(UserProfileImage(user_id=user.id, image_url=profile_img_url))
         db.session.commit()
 
         all_ingredients = BaseIngredient.query.all()
@@ -85,6 +93,30 @@ def main():
                 url = fake.image_url(width=640, height=480)
                 db.session.add(RecipeImage(recipe_id=recipe.id, image_url=url))
 
+            # Add random view count
+            recipe.view_count = random.randint(0, 1000)
+            db.session.commit()
+
+            # Add at least 3 reviews/ratings, each tied to a user, with a random rating and review, and a created_at date in 2024
+            review_users = random.sample(users, k=min(3, len(users)))
+            for reviewer in review_users:
+                rating_value = random.randint(1, 5)
+                review_text = fake.sentence(nb_words=12)
+                # Random date in 2024
+                created_at = fake.date_time_between(
+                    start_date=datetime(2024, 1, 1, 0, 0, 0),
+                    end_date=datetime(2024, 12, 31, 23, 59, 59)
+                )
+                db.session.add(
+                    Rating(
+                        recipe_id=recipe.id,
+                        user_id=reviewer.id,
+                        rating=rating_value,
+                        review=review_text,
+                        created_at=created_at,
+                        updated_at=created_at
+                    )
+                )
             db.session.commit()
 
         print(f"✅ Added {num_recipes} recipes (with users, ingredients, instructions, images) to the database.")
