@@ -105,3 +105,81 @@ body {
   .header-right .profile-link:hover {
     text-decoration: underline;
   }
+
+  /* Flash Messages */
+
+  .flash-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 0.5rem;
+    gap: 1rem;
+  }
+
+  .flash-msg {
+    font-family: sans-serif;
+    background-color: #dff0d8;
+    color: rgb(17, 17, 17);
+    padding : 1rem;
+    border : 0.75px solid #dff0d8;
+    border-radius: 0.25rem;
+    font-weight: bold;
+    text-align: center;
+    margin: 1rem 0;
+    width: fit-content;
+    align-content: center;
+  }
+
+  .flash-msg.logout {
+    background-color: #ffe8e8;
+    color: #b30000;
+    border-left: 4px solid #b30000;
+    padding: auto;
+    border-radius: 3px;
+    text-align: center;
+    margin: 1rem auto;
+    width: fit-content;
+  }
+
+  .flash-msg.error {
+    background-color: #ffe5e7;
+    color: #721c24;
+    border-left: 4px solid #dc3545;
+    padding: auto;
+    border-radius: 3px;
+    text-align: center;
+    margin: 1rem auto;
+    width: fit-content;
+  }
+
+  .flash-msg.success {
+    background-color: #e7f1e9;
+    color: #155724;
+    border-left: 4px solid #24aa43;
+    padding: auto;
+    border-radius: 3px;
+    text-align: center;
+    margin: 1rem auto;
+    width: fit-content;
+  }
+
+  .flash-msg.greeting {
+    background-color: #e8f0fe;
+    color: #082810;
+    border-left: 4px solid #004d11;
+    padding: auto;
+    border-radius: 3px;
+    text-align: center;
+    margin: 1rem auto;
+    width: fit-content;
+  }
+
+  .form-error {
+    color: #d52424;
+    background-color: #ffe8e8;
+    border-left: 4px solid #b30000;
+    padding: 6px 10px;
+    font-size: 0.9rem;
+    border-radius: 3px;
+    margin-top: 0.25rem;
+  }

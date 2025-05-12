@@ -1,50 +1,93 @@
 <html>
 
 <head>
-    <title>Sign Up</title>
-    <link rel="stylesheet" href="../css/header.css">
-    <link rel="stylesheet" href="../css/LogInSignUp.css">
+  <title>Sign Up</title>
+  <link rel="stylesheet" href="../css/header.css">
+  <link rel="stylesheet" href="../css/LogInSignUp.css">
 </head>
 
 <body class="page-body">
-    <!--  Header  -->
-    <header class="header">
-        <div class="header-left">
-            <a href="/">Recipe Index</a>
-            <a href="/browse" class="nav-link">Breakfast</a>
-            <a href="/browse" class="nav-link">Lunch</a>
-            <a href="/browse" class="nav-link">Dinner</a>
-        </div>
-        <div class="header-center">
-            <input type="text" placeholder="Search recipes...">
-        </div>
-        <div class="header-right">
-            <a href="/login" class="nav-link">Log In</a>
-            <a href="/signup" class="nav-link">Sign Up</a>
-            <button onclick="location.href='/create'">Create!</button>
-            <a href="/profile" class="profile-link">Profile</a>
-        </div>
-    </header>
-
-    <!--  Page Content  -->
-    <div class="login-container">
-        <h1>Sign Up</h1>
-        <form action="/login" method="post">
-            <label for="username">Email:</label>
-            <input type="text" id="username" name="username" required placeholder="example@email.com" maxlength="100">
-
-            <label for="password">Password:</label>
-            <input type="password" id="password" name="password" required placeholder="Choose a strong password..." maxlength="100">
-            <label for="confirm-password">Confirm Password:</label>
-            <input type="password" id="confirm-password" name="confirm-password" required placeholder="Re-enter your password..." maxlength="100">
-
-            <label for="display-name">Display Name:</label>
-            <input type="text" id="display-name" name="display-name" required placeholder="Your display name will show as your username..." maxlength="50">
-
-            <button type="submit">Sign Up</button>
-
-        </form>
-
+  <!--  Header  -->
+  <header class="header">
+    <div class="header-left">
+      <a href="/">Recipe Index</a>
+      <a href="/browse" class="nav-link">Breakfast</a>
+      <a href="/browse" class="nav-link">Lunch</a>
+      <a href="/browse" class="nav-link">Dinner</a>
     </div>
+    <div class="header-center">
+      <input type="text" placeholder="Search recipes...">
+    </div>
+    <div class="header-right">
+      <!-- Different header if user is logged in -->
+      {% if current_user.is_authenticated %}
+      <a href="/logout" class="nav-link">Log Out</a>
+      {% else %}
+      <a href="/login" class="nav-link">Log In</a>
+      <a href="/signup" class="nav-link">Sign Up</a>
+      {% endif %}
+      <button onclick="location.href='/create'">Create!</button>
+      <a href="/profile" class="profile-link">Profile</a>
+    </div>
+  </header>
+
+  <!-- Flash msgs -->
+  <div class="flash-container">
+    {% with messages = get_flashed_messages(with_categories=True) %}
+      {% if messages %}
+        {% for category, msg in messages %}
+          <p class="flash-msg {{ category }}">{{ msg }}</p>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+  </div>
+
+
+  <!--  Page Content  -->
+  <div class="login-container">
+    <h1>Sign Up</h1>
+
+    <!-- Altered to work with Flask -->
+
+    <form method="POST">
+      {{ form.hidden_tag() }}
+
+      <div class="field-block">
+        {{ form.email.label }}:<br>
+        {{ form.email }}<br>
+        {% for error in form.email.errors %}
+          <p class="form-error">{{ error }}</p>
+        {% endfor %}
+      </div>
+
+
+      <div class="field-block">
+        {{ form.password.label }}:<br>
+        {{ form.password }}<br>
+        {% for error in form.password.errors %}
+          <p class="form-error">{{ error }}</p>
+        {% endfor %}
+      </div>
+
+      <div class="field-block">
+        {{ form.confirm_password.label }}:<br>
+        {{ form.confirm_password }}<br>
+        {% for error in form.confirm_password.errors %}
+          <p class="form-error">{{ error }}</p>
+        {% endfor %}
+      </div>
+      
+      <div class="field-block">
+        {{ form.display_name.label }}:<br>
+        {{ form.display_name }}<br>
+        {% for error in form.display_name.errors %}
+          <p class="form-error">{{ error }}</p>
+        {% endfor %}
+      </div>
+
+      {{ form.submit(class="button") }}
+    </form>
+  </div>
 </body>
+
 </html>
