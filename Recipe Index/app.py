@@ -271,31 +271,7 @@ def view_recipe():
 
 @app.route('/api/recipes/<int:recipe_id>')
 def get_recipe(recipe_id):
-    recipe = Recipe.query.get(recipe_id)
-    if not recipe:
-        return jsonify({'error': 'Recipe not found'}), 404
-
-    # Ingredients
-    ingredients = [
-        f"{ri.quantity} {ri.ingredient.default_unit or ''} {ri.ingredient.name}"
-        for ri in recipe.ingredients
-    ]
-
-    # Instructions
-    instructions = [
-        inst.content for inst in sorted(recipe.instructions, key=lambda i: i.step_number)
-    ]
-
-    # Images (use first image URL if available)
-    image_url = recipe.images[0].image_url if recipe.images else None
-
-    # Reviews (you can customize further if needed)
-    reviews = []
-    if hasattr(recipe, 'reviews'):
-        reviews = [
-            {'rating': r.rating, 'comment': r.comment}
-            for r in recipe.reviews
-        ]
+    recipe = Recipe.query.get_or_404(recipe_id)
 
     return jsonify({
         'id': recipe.id,
@@ -303,11 +279,22 @@ def get_recipe(recipe_id):
         'description': recipe.description,
         'cook_time': recipe.cook_time,
         'servings': recipe.servings,
-        'privacy': 'Public',  # Adjust if you store privacy status
-        'ingredients': ingredients,
-        'instructions': instructions,
-        'image_url': image_url,
-        'reviews': reviews
+        'privacy': recipe.access_level,
+        'ingredients': [
+            f"{ri.quantity} {ri.ingredient.default_unit or ''} {ri.ingredient.name}"
+            for ri in recipe.ingredients
+        ],
+        'instructions': [
+            instr.content for instr in sorted(recipe.instructions, key=lambda x: x.step_number)
+        ],
+        'image_url': recipe.images[0].image_url if recipe.images else None,
+        'reviews': [
+            {
+                'rating': rating.rating,
+                'comment': rating.review or ''
+            }
+            for rating in recipe.ratings
+        ]
     })
 
 
@@ -375,4 +362,6 @@ def signup():
 #Run Server
 if __name__ == '__main__':
     app.run(debug=True)
+
+
 
