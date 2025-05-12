@@ -269,6 +269,48 @@ def browse():
 def view_recipe():
     return render_template('ViewRecipe.html')
 
+@app.route('/api/recipes/<int:recipe_id>')
+def get_recipe(recipe_id):
+    recipe = Recipe.query.get(recipe_id)
+    if not recipe:
+        return jsonify({'error': 'Recipe not found'}), 404
+
+    # Ingredients
+    ingredients = [
+        f"{ri.quantity} {ri.ingredient.default_unit or ''} {ri.ingredient.name}"
+        for ri in recipe.ingredients
+    ]
+
+    # Instructions
+    instructions = [
+        inst.content for inst in sorted(recipe.instructions, key=lambda i: i.step_number)
+    ]
+
+    # Images (use first image URL if available)
+    image_url = recipe.images[0].image_url if recipe.images else None
+
+    # Reviews (you can customize further if needed)
+    reviews = []
+    if hasattr(recipe, 'reviews'):
+        reviews = [
+            {'rating': r.rating, 'comment': r.comment}
+            for r in recipe.reviews
+        ]
+
+    return jsonify({
+        'id': recipe.id,
+        'title': recipe.name,
+        'description': recipe.description,
+        'cook_time': recipe.cook_time,
+        'servings': recipe.servings,
+        'privacy': 'Public',  # Adjust if you store privacy status
+        'ingredients': ingredients,
+        'instructions': instructions,
+        'image_url': image_url,
+        'reviews': reviews
+    })
+
+
 @app.route('/profile')
 @login_required
 def profile():
