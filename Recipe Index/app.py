@@ -269,6 +269,34 @@ def browse():
 def view_recipe():
     return render_template('ViewRecipe.html')
 
+@app.route('/api/recipes/<int:recipe_id>')
+def get_recipe(recipe_id):
+    recipe = Recipe.query.get_or_404(recipe_id)
+
+    return jsonify({
+        'id': recipe.id,
+        'title': recipe.name,
+        'description': recipe.description,
+        'cook_time': recipe.cook_time,
+        'servings': recipe.servings,
+        'privacy': recipe.access_level,
+        'ingredients': [
+            f"{ri.quantity} {ri.ingredient.default_unit or ''} {ri.ingredient.name}"
+            for ri in recipe.ingredients
+        ],
+        'instructions': [
+            instr.content for instr in sorted(recipe.instructions, key=lambda x: x.step_number)
+        ],
+        'image_url': recipe.images[0].image_url if recipe.images else None,
+        'reviews': [
+            {
+                'rating': rating.rating,
+                'comment': rating.review or ''
+            }
+            for rating in recipe.ratings
+        ]
+    })
+
 @app.route('/profile')
 @login_required
 def profile():
