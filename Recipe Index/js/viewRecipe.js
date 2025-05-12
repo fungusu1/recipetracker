@@ -1,6 +1,14 @@
-function getRecipeById(id) {
-  const recipes = JSON.parse(localStorage.getItem('recipes')) || [];
-  return recipes.find(r => r.id == id);
+async function getRecipeById(id) {
+  try {
+    const response = await fetch(`/api/recipes/${id}`);
+    if (!response.ok) {
+      throw new Error('Recipe not found');
+    }
+    return await response.json();
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
 }
 
 function displayRecipe(recipe) {
