@@ -92,7 +92,7 @@
       <!-- Top Chefs Section (based on # of recipes)-->
       {% for chef in top_chefs %}
       <div class="single-profile">
-        <img src="../images/profile_placeholder.jpg" alt="User's Profile Picture" />
+        <img src="{{ url_for('images', filename='profile_placeholder.jpg') }}" alt="{{ chef.display_name }}'s Profile Picture" />
         <h3 class="author">{{ chef.display_name }}</h3>
         <p>Total Recipes: {{ chef.total_recipes }}</p>
       </div>
@@ -103,30 +103,21 @@
   <div class="reviews-section">
     <h2>Latest Reviews</h2>
     <div class="reviews">
+      <!-- Latest Reviews Section -->
+      {% for review, user, recipe in latest_reviews %}
       <div class="single-review">
-        <img src="../images/profile_placeholder.jpg" alt="User's Profile Picture" />
+        <img src="{{ url_for('images', filename='profile_placeholder.jpg') }}" alt="{{ user.display_name }}'s Profile Picture" />
+        
         <div class="single-review-text">
-          <p><strong>Profile_1</strong> : <em>Recipe_1</em></p>
-          <p>So good! Really simple and delicious.</p>
-          <p>Rating: 4/5</p>
+          <div class="review-date">{{ review.created_at.strftime('%d-%m-%Y') }}</div>
+
+          <p><strong>{{ user.display_name }}</strong> : 
+            <a href="/recipe?id={{ recipe.id }}" class="recipe-link">{{ recipe.name }}</a>
+          <p>{{ review.review or "No comment provided."}}</p>
+          <p>Rating: {{ review.rating }}/5</p>
         </div>
       </div>
-      <div class="single-review">
-        <img src="../images/profile_placeholder.jpg" alt="User's Profile Picture" />
-        <div class="single-review-text">
-          <p><strong>Profile_2</strong> : <em>Recipe_2</em></p>
-          <p>Not my favourite, but still not bad.</p>
-          <p>Rating: 2.5/5</p>
-        </div>
-      </div>
-      <div class="single-review">
-        <img src="../images/profile_placeholder.jpg" alt="User's Profile Picture" />
-        <div class="single-review-text">
-          <p><strong>Profile_3</strong> : <em>Recipe_3</em></p>
-          <p>Meh.</p>
-          <p>Rating: 1.5/5</p>
-        </div>
-      </div>
+      {% endfor %}
     </div>
   </div>
 

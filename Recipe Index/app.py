@@ -80,7 +80,17 @@ def homepage():
         .all()
     )
 
-    return render_template('HomePage.html', top_chefs=top_chefs, top_recipes=top_recipes)
+    # Get the 3/5 latest recipes
+    latest_reviews = (
+        db.session.query(Rating, User, Recipe)
+        .join(User, Rating.user_id == User.id)
+        .join(Recipe, Rating.recipe_id == Recipe.id)
+        .order_by(Rating.created_at.desc())
+        .limit(5)
+        .all()
+    )
+
+    return render_template('HomePage.html', top_chefs=top_chefs, top_recipes=top_recipes, latest_reviews=latest_reviews)
 
 @app.route('/api/base_ingredients', methods=['POST'])
 def add_base_ingredient():
