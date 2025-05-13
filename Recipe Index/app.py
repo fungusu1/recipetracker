@@ -363,7 +363,6 @@ def signup():
 def search():
     query = request.args.get('q', '').strip()
 
-    # simple title‐match for now; later you can extend this to description or ingredients
     recipes = Recipe.query \
         .filter(Recipe.name.ilike(f'%{query}%')) \
         .order_by(Recipe.cook_time.asc()) \
