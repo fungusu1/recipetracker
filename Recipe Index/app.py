@@ -56,7 +56,17 @@ def images(filename):
 #Page Routing
 @app.route('/')
 def homepage():
-    return render_template('HomePage.html')
+    
+    top_chefs = (
+        db.session.query(User)
+        .join(Recipe)
+        .group_by(User.id)
+        .order_by(func.count(Recipe.id).desc())
+        .limit(3)
+        .all()
+    )
+
+    return render_template('HomePage.html', top_chefs=top_chefs)
 
 @app.route('/api/base_ingredients', methods=['POST'])
 def add_base_ingredient():
