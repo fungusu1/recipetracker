@@ -4,15 +4,16 @@
     <a href="/browse" class="nav-link">Browse</a>
   </div>
   <div class="header-center">
-    <input type="text" placeholder="Search recipes...">
+    <form action="{{ url_for('search') }}" method="get">
+      <input type="text" name="q" placeholder="Search recipes…" required>
+    </form>
   </div>
   <div class="header-right">
-    <!-- Different header if user is logged in -->
     {% if current_user.is_authenticated %}
-    <a href="/logout" class="nav-link">Log Out</a>
+      <a href="/logout" class="nav-link">Log Out</a>
     {% else %}
-    <a href="/login" class="nav-link">Log In</a>
-    <a href="/signup" class="nav-link">Sign Up</a>
+      <a href="/login" class="nav-link">Log In</a>
+      <a href="/signup" class="nav-link">Sign Up</a>
     {% endif %}
     <button onclick="location.href='/create'">Create!</button>
     <a href="/profile" class="profile-link">Profile</a>
