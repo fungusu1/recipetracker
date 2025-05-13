@@ -301,7 +301,16 @@ def browse():
 
 @app.route('/recipe')
 def view_recipe():
-    return render_template('ViewRecipe.html')
+    recipe_id = request.args.get('id')
+    if not recipe_id:
+        return redirect(url_for('browse'))
+    
+    recipe = Recipe.query.get_or_404(recipe_id)
+
+    recipe.view_count += 1
+    db.session.commit()
+    
+    return render_template('ViewRecipe.html', recipe=recipe)
 
 @app.route('/api/recipes/<int:recipe_id>')
 def get_recipe(recipe_id):

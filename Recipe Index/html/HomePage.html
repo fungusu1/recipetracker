@@ -78,6 +78,10 @@
             <span><strong>Cook Time:</strong> {{ recipe.cook_time }} mins</span>
             <span class="meta-divider">|</span>
             <span><strong>Quantity:</strong> Serves {{ recipe.servings }}</span>
+            <span class="meta-divider">|</span>
+          </div>
+          <div class="recipe-meta">
+            <span><strong>Views:</strong> {{ recipe.view_count }}</span>
           </div>
           <p>Rating: {{ '%.1f' % recipe.average_rating }}/5.0</p>
           <p class="author">by {{ recipe.user.display_name }}</p>
@@ -114,7 +118,8 @@
           <p><strong>{{ user.display_name }}</strong> : 
             <a href="/recipe?id={{ recipe.id }}" class="recipe-link">{{ recipe.name }}</a>
           <p>{{ review.review or "No comment provided."}}</p>
-          <p>Rating: {{ review.rating }}/5</p>
+          <p><strong>Rating:</strong> {{ review.rating }}/5</p>
+          <p><strong>Views:</strong> {{ recipe.view_count }}</p>
         </div>
       </div>
       {% endfor %}
