@@ -1,6 +1,6 @@
 import os
 from flask import Flask, render_template, send_from_directory, redirect, url_for, request, jsonify, session, flash, get_flashed_messages
-from models import db, User, Recipe, RecipeIngredient, RecipeImage, Instruction, BaseIngredient
+from models import db, User, Recipe, RecipeIngredient, RecipeImage, Instruction, BaseIngredient, Rating
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import func
@@ -56,7 +56,8 @@ def images(filename):
 #Page Routing
 @app.route('/')
 def homepage():
-    
+
+    # Get top 3 chefs (based on # of recipes)
     top_chefs = (
         db.session.query(User)
         .join(Recipe)
@@ -66,7 +67,20 @@ def homepage():
         .all()
     )
 
-    return render_template('HomePage.html', top_chefs=top_chefs)
+    # Get top 3 recipes (based on highest avg ratings)
+    top_recipes = (
+        db.session.query(Recipe)
+        .join(Rating)
+        .group_by(Recipe.id)
+        .order_by(func.avg(Rating.rating).desc(),
+                    func.count(Rating.id).desc(),
+                    func.max(Rating.created_at).desc()
+        )
+        .limit(3)
+        .all()
+    )
+
+    return render_template('HomePage.html', top_chefs=top_chefs, top_recipes=top_recipes)
 
 @app.route('/api/base_ingredients', methods=['POST'])
 def add_base_ingredient():
