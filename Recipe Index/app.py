@@ -359,6 +359,30 @@ def signup():
     
     return render_template('SignUp.html', form=form)
 
+@app.route('/search')
+def search():
+    query = request.args.get('q', '').strip()
+
+    recipes = Recipe.query \
+        .filter(Recipe.name.ilike(f'%{query}%')) \
+        .order_by(Recipe.cook_time.asc()) \
+        .all()
+
+    # build a mapping of recipe.id → image_url (falling back to “no image”)
+    recipe_images = {
+        r.id: (r.images[0].image_url if r.images else url_for('images', filename='no-image-available-icon-vector.jpg'))
+        for r in recipes
+    }
+
+    return render_template(
+        'SearchResults.html',
+        query=query,
+        recipes=recipes,
+        recipe_images=recipe_images
+    )
+
+
+
 #Run Server
 if __name__ == '__main__':
     app.run(debug=True)
