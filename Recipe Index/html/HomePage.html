@@ -116,9 +116,17 @@
           <div class="review-date">{{ review.created_at.strftime('%d-%m-%Y') }}</div>
 
           <p><strong>{{ user.display_name }}</strong> : 
-            <a href="/recipe?id={{ recipe.id }}" class="recipe-link">{{ recipe.name }}</a>
+            <a href="/recipe?id={{ recipe.id }}" class="recipe-link">{{ recipe.name }}</a></p>
+            <div class="stars">
+              {% for i in range(1, 6) %}
+                {% if i <= review.rating %}
+                  <span class="star">★</span>
+                {% else %}
+                  <span class="star-empty">★</span>
+                {% endif %}
+              {% endfor %}
+            </div>
           <p>{{ review.review or "No comment provided."}}</p>
-          <p><strong>Rating:</strong> {{ review.rating }}/5</p>
           <p><strong>Views:</strong> {{ recipe.view_count }}</p>
         </div>
       </div>

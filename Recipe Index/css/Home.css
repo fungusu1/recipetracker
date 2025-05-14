@@ -267,3 +267,17 @@ h2 {
     color: #10b981;
     text-decoration: underline;
 }
+
+.stars {
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+}
+
+.star {
+    color: gold;
+    margin-right: 2px;
+}
+
+.star-empty {
+    color: #ccc;
+}
