@@ -323,6 +323,7 @@ def get_recipe(recipe_id):
         'cook_time': recipe.cook_time,
         'servings': recipe.servings,
         'privacy': recipe.access_level,
+        'view_count': recipe.view_count,
         'ingredients': [
             f"{ri.quantity} {ri.ingredient.default_unit or ''} {ri.ingredient.name}"
             for ri in recipe.ingredients
