@@ -173,16 +173,18 @@
         </div>
       </div>
       <div>
-        <label for="images">Recipe Images:</label>
+        <label>Recipe Images:</label>
         <div id="images-container">
-          <input
-            type="file"
-            id="images"
-            name="images"
-            accept="image/*"
-            multiple
-          >
+          <div class="image-item">
+            <input type = "file" name = "images" accepts = "image/*">
+            <label>
+              <input type="radio" name="primary_image" value="0" checked>
+              Primary
+            </label>
+            <button type="button" class="remove-btn hidden">✕</button>
+          </div>
         </div>
+        <button type="button" onclick="addImageField()" class="add-btn">＋ Add Image</button>
         <small>You can select multiple files</small>
       </div>
       <!-- Submit -->
