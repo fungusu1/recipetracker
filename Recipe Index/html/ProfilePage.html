@@ -32,6 +32,10 @@
       <div class="profile-left">
         <img id="pfp" src="{{ user.profile_image.image_url if user.profile_image else url_for('images', filename='profile_placeholder.jpg') }}" alt="User's profile picture"
           onerror="this.src='../images/profile_placeholder.jpg'">
+
+          {% if current_user.is_authenticated and current_user.id == user.id %}
+          <button class="edit-profile-btn" onclick="window.location.href='/profile/edit'">Edit Profile</button>
+          {% endif %}
       </div>
 
       <div class="profile-text">
@@ -40,9 +44,6 @@
           <p>{{ user.profile_description }}</p>
         {% else %}
           <p style="color: #888; font-style: italic;">They have no bio ;(</p>
-        {% endif %}
-        {% if current_user.is_authenticated and current_user.id == user.id %}
-        <button class="edit-profile-btn" onclick="window.location.href='/profile/edit'">Edit Profile</button>
         {% endif %}
       </div>
     </div>
@@ -72,10 +73,10 @@
       <div class="recipe-header">
         <h1>{{ user.display_name }}'s Recipes</h1>
         <select id="sortDropdown" class="sort-dropdown" onchange="window.location.search='?sort='+this.value;">
-          <option value="title" {% if selected_sort == 'title' or not selected_sort %}selected{% endif %}>Alphabetically</option>
-          <option value="rating" {% if selected_sort == 'rating' %}selected{% endif %}>Rating</option>
-          <option value="cook-time" {% if selected_sort == 'cook-time' %}selected{% endif %}>Cook time</option>
-          <option value="quantity" {% if selected_sort == 'quantity' %}selected{% endif %}>Quantity</option>
+          <option value="title" {% if selected_sort == 'title' or not selected_sort %}selected{% endif %}>Alphabetically (A-z)</option>
+          <option value="rating" {% if selected_sort == 'rating' %}selected{% endif %}>Rating (Desc)</option>
+          <option value="cook-time" {% if selected_sort == 'cook-time' %}selected{% endif %}>Cook time (Asc)</option>
+          <option value="quantity" {% if selected_sort == 'quantity' %}selected{% endif %}>Quantity (Desc)</option>
         </select>  
       </div>
       
