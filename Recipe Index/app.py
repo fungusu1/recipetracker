@@ -1,6 +1,6 @@
 import os
 from flask import Flask, render_template, send_from_directory, redirect, url_for, request, jsonify, session, flash, get_flashed_messages
-from models import db, User, Recipe, RecipeIngredient, RecipeImage, Instruction, BaseIngredient
+from models import db, User, Recipe, RecipeIngredient, RecipeImage, Instruction, BaseIngredient, Rating
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import func
@@ -56,7 +56,41 @@ def images(filename):
 #Page Routing
 @app.route('/')
 def homepage():
-    return render_template('HomePage.html')
+
+    # Get top 3 chefs (based on # of recipes)
+    top_chefs = (
+        db.session.query(User)
+        .join(Recipe)
+        .group_by(User.id)
+        .order_by(func.count(Recipe.id).desc())
+        .limit(3)
+        .all()
+    )
+
+    # Get top 3 recipes (based on highest avg ratings)
+    top_recipes = (
+        db.session.query(Recipe)
+        .join(Rating)
+        .group_by(Recipe.id)
+        .order_by(func.avg(Rating.rating).desc(),
+                    func.count(Rating.id).desc(),
+                    func.max(Rating.created_at).desc()
+        )
+        .limit(3)
+        .all()
+    )
+
+    # Get the 3/5 latest recipes
+    latest_reviews = (
+        db.session.query(Rating, User, Recipe)
+        .join(User, Rating.user_id == User.id)
+        .join(Recipe, Rating.recipe_id == Recipe.id)
+        .order_by(Rating.created_at.desc())
+        .limit(5)
+        .all()
+    )
+
+    return render_template('HomePage.html', top_chefs=top_chefs, top_recipes=top_recipes, latest_reviews=latest_reviews)
 
 @app.route('/api/base_ingredients', methods=['POST'])
 def add_base_ingredient():
@@ -267,7 +301,16 @@ def browse():
 
 @app.route('/recipe')
 def view_recipe():
-    return render_template('ViewRecipe.html')
+    recipe_id = request.args.get('id')
+    if not recipe_id:
+        return redirect(url_for('browse'))
+    
+    recipe = Recipe.query.get_or_404(recipe_id)
+
+    recipe.view_count += 1
+    db.session.commit()
+    
+    return render_template('ViewRecipe.html', recipe=recipe)
 
 @app.route('/api/recipes/<int:recipe_id>')
 def get_recipe(recipe_id):
@@ -287,6 +330,7 @@ def get_recipe(recipe_id):
         'author_id': author_id, 
         'author_name': author_name,
         'is_owner': recipe.user_id == current_user.id,
+        'view_count': recipe.view_count,
         'ingredients': [
             f"{ri.quantity} {ri.ingredient.default_unit or ''} {ri.ingredient.name}"
             for ri in recipe.ingredients
@@ -309,7 +353,61 @@ def get_recipe(recipe_id):
 @login_required
 def profile():
     flash(f'Welcome back, {current_user.display_name}', 'greeting')
-    return render_template('ProfilePage.html', user=current_user)
+    sort = request.args.get('sort', 'title')
+    query = Recipe.query.filter_by(user_id=current_user.id)
+    if sort == 'rating':
+        recipes = sorted(query.all(), key=lambda r: r.average_rating, reverse=True)
+    elif sort == 'cook-time':
+        recipes = query.order_by(Recipe.cook_time.asc()).all()
+    elif sort == 'quantity':
+        recipes = query.order_by(Recipe.servings.desc()).all()
+    else:  # 'title' or default
+        recipes = query.order_by(Recipe.name.asc()).all()
+    return render_template('ProfilePage.html', user=current_user, recipes=recipes, selected_sort=sort)
+
+@app.route('/profile/<int:user_id>')
+def public_profile(user_id):
+    user = User.query.get_or_404(user_id)
+    sort = request.args.get('sort', 'title')
+    query = Recipe.query.filter_by(user_id=user.id)
+    if sort == 'rating':
+        recipes = sorted(query.all(), key=lambda r: r.average_rating, reverse=True)
+    elif sort == 'cook-time':
+        recipes = query.order_by(Recipe.cook_time.asc()).all()
+    elif sort == 'quantity':
+        recipes = query.order_by(Recipe.servings.desc()).all()
+    else:  # 'title' or default
+        recipes = query.order_by(Recipe.name.asc()).all()
+    return render_template('ProfilePage.html', user=user, recipes=recipes, selected_sort=sort)
+
+@app.route('/profile/edit', methods=['GET', 'POST'])
+@login_required
+def edit_profile():
+    if request.method == 'POST':
+        new_bio = request.form.get('profile_description', '').strip()
+        if new_bio:
+            current_user.profile_description = new_bio
+        # Handle profile image upload
+        file = request.files.get('profile_image')
+        if file and file.filename:
+            filename = secure_filename(file.filename)
+            img_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(img_path)
+            # Remove old image if exists
+            if current_user.profile_image:
+                old_path = current_user.profile_image.image_url
+                if old_path and os.path.exists(os.path.join(app.root_path, old_path.replace('/images/', 'images/'))):
+                    try:
+                        os.remove(os.path.join(app.root_path, old_path.replace('/images/', 'images/')))
+                    except Exception:
+                        pass
+                current_user.profile_image.image_url = url_for('images', filename=filename)
+            else:
+                from models import UserProfileImage
+                db.session.add(UserProfileImage(user_id=current_user.id, image_url=url_for('images', filename=filename)))
+        db.session.commit()
+        return redirect(url_for('profile'))
+    return render_template('EditProfile.html', user=current_user)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -366,9 +464,30 @@ def signup():
     
     return render_template('SignUp.html', form=form)
 
+@app.route('/search')
+def search():
+    query = request.args.get('q', '').strip()
+
+    recipes = Recipe.query \
+        .filter(Recipe.name.ilike(f'%{query}%')) \
+        .order_by(Recipe.cook_time.asc()) \
+        .all()
+
+    # build a mapping of recipe.id → image_url (falling back to “no image”)
+    recipe_images = {
+        r.id: (r.images[0].image_url if r.images else url_for('images', filename='no-image-available-icon-vector.jpg'))
+        for r in recipes
+    }
+
+    return render_template(
+        'SearchResults.html',
+        query=query,
+        recipes=recipes,
+        recipe_images=recipe_images
+    )
+
+
+
 #Run Server
 if __name__ == '__main__':
     app.run(debug=True)
-
-
-

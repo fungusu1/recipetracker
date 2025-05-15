@@ -5,33 +5,19 @@
   <title>Create a Recipe</title>
   <link rel="stylesheet" href="../css/CRecipe.css">
   <link rel="stylesheet" href="../css/header.css">
+  
+  <!-- Select2 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+  <!-- Select2 JS -->
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js" defer></script>
+  
   <script src="../js/CRecipe.js" defer></script>
 </head>
 
 <body class="page-body">
   <!-- Header -->
-  <header class="header">
-    <div class="header-left">
-      <a href="/">Recipe Index</a>
-      <a href="/browse" class="nav-link">Breakfast</a>
-      <a href="/browse" class="nav-link">Lunch</a>
-      <a href="/browse" class="nav-link">Dinner</a>
-    </div>
-    <div class="header-center">
-      <input type="text" placeholder="Search recipes...">
-    </div>
-    <div class="header-right">
-      <!-- Different header if user is logged in -->
-      {% if current_user.is_authenticated %}
-      <a href="/logout" class="nav-link">Log Out</a>
-      {% else %}
-      <a href="/login" class="nav-link">Log In</a>
-      <a href="/signup" class="nav-link">Sign Up</a>
-      {% endif %}
-      <button onclick="location.href='/create'">Create!</button>
-      <a href="/profile" class="profile-link">Profile</a>
-    </div>
-  </header>
+  {% include 'Header.html' %}
+
 
   <!-- Recipe Container -->
   <div class="container">
@@ -98,14 +84,14 @@
 
       <!-- Ingredients -->
       <div>
-        <label>Ingredients:</label>
-        <button
-          type="button"
-          class="add-new-type-btn"
-          onclick="promptNewIngredient()"
-          title="Add a new ingredient type">
-          ＋ New Type
-        </button>
+        <label for="ingredient-select">Select Ingredients:</label>
+        <select id="ingredient-select" name="ingredient_ids[]" multiple="multiple" style="width: 100%">
+          {% for ingredient in all_ingredients %}
+          <option value="{{ ingredient.id }}">{{ ingredient.name }}</option>
+          {% endfor %}
+        </select>
+        <small>Hold Ctrl (Cmd on Mac) to select multiple.</small>
+      </div>
 
         <div id="ingredients-container">
           <div class="ingredient-item flex-row">
@@ -173,17 +159,26 @@
         </div>
       </div>
       <div>
-        <label for="images">Recipe Images:</label>
+        <label>Recipe Images:</label>
         <div id="images-container">
-          <input
-            type="file"
-            id="images"
-            name="images"
-            accept="image/*"
-            multiple
-          >
+          <div class="image-item">
+            <input type = "file" name = "images" accepts = "image/*">
+            <label>
+              <input type="radio" name="primary_image" value="0" checked>
+              Primary
+            </label>
+            <button type="button" class="remove-btn hidden">✕</button>
+          </div>
         </div>
+        <button type="button" onclick="addImageField()" class="add-btn">＋ Add Image</button>
         <small>You can select multiple files</small>
+      </div>
+      <div class="form-group">
+        <label for="privacy">Privacy:</label>
+        <select id="privacy" name="privacy" class="form-control" required>
+          <option value="Public">Public</option>
+          <option value="Private">Private</option>
+        </select>
       </div>
       <!-- Submit -->
       <div class="text-center">
