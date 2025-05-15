@@ -79,6 +79,42 @@ function addField(containerId, fieldName) {
   });
 }
 
+// Called by the ＋ Add Image button
+function addImageField() {
+  const container = document.getElementById('images-container');
+  const template = container.querySelector('.image-item');
+  const clone = template.cloneNode(true);
+
+  // Reset values for the new field
+  const fileInput = clone.querySelector('input[type="file"]');
+  fileInput.value = ''; // Clear file input
+
+  // Show the remove button
+  const removeBtn = clone.querySelector('.remove-btn');
+  removeBtn.classList.remove('hidden');
+
+  // Reset the primary image radio button
+  const primaryRadio = clone.querySelector('input[type="radio"]');
+  primaryRadio.checked = false;
+
+  // Get the next index for the radio button value (if required)
+  const index = container.children.length;
+  primaryRadio.value = index;
+
+  // Wire up the remove button functionality
+  removeBtn.addEventListener('click', () => removeImageField(removeBtn));
+
+  container.appendChild(clone);
+}
+
+// Remove an image field
+function removeImageField(btn) {
+  const container = document.getElementById('images-container');
+  if (container.children.length > 1) {
+    btn.parentElement.remove();
+  }
+}
+
 function removeInstructionField(btn) {
   const container = document.getElementById('instructions-container');
   if (container.children.length > 1) {
@@ -94,3 +130,35 @@ function renumberInstructions(container) {
       item.querySelector('.item-label').textContent = (idx + 1) + '.';
     });
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+  const ingredientSelect = document.getElementById("ingredient-select");
+  if (ingredientSelect) {
+    $(ingredientSelect).select2({
+      placeholder: "Choose ingredients",
+      allowClear: true
+    });
+  }
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  const sharedSelect = document.getElementById("shared_users");
+  if (sharedSelect) {
+    $(sharedSelect).select2({
+      placeholder: "Select users to share with",
+      allowClear: true
+    });
+  }
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  const privacySelect = document.getElementById("privacy");
+  const sharedUsersContainer = document.getElementById("shared-users-container");
+
+  privacySelect.addEventListener("change", () => {
+    sharedUsersContainer.style.display = privacySelect.value === "2" ? "block" : "none";
+  });
+
+  // Trigger it on load
+  privacySelect.dispatchEvent(new Event("change"));
+});
