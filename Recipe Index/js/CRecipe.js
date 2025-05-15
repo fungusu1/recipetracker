@@ -87,6 +87,42 @@ function removeInstructionField(btn) {
   }
 }
 
+// called by + Add Image button
+function addImageField() {
+  const container = document.getElementById('images-container');
+  const template = container.querySelector('.image-item');
+  const clone = template.cloneNode(true);
+
+  //Reset values by new field
+  const fileInput = clone.querySelector('input[type="file"]');
+  fileInput.value = ''; // Clear file input
+
+  //Show Remove button
+  const removeBtn = clone.querySelector('.remove-btn');
+  removeBtn.classList.remove('hidden');
+
+  //Reset Primary image radio button
+  const primaryRadio = clone.querySelector('input[type="radio"]');
+  primaryRadio.checked = false;
+
+  // Get the next index for the radio button value (if required)
+  const index = container.children.length
+  primaryRadio.value = index;
+
+  // Wire up the remove button functionality
+  removeBtn.addEventListener('click', () => removeImageField(removeBtn));
+
+  container.appendChild(clone);
+}
+
+//Removing Imagefield
+function removeImageField(btn) {
+  const container = document.getElementById('images-container');
+  if (container.children.length > 1) {
+    btn.parentElement.remove();
+  }
+}
+
 function renumberInstructions(container) {
   container
     .querySelectorAll('.instruction-item')
