@@ -25,6 +25,15 @@ function displayRecipe(recipe) {
   document.getElementById('privacy').textContent = recipe.privacy;
   document.getElementById('views').textContent = recipe.view_count;
 
+  // Author Link
+  const authorLink = document.getElementById('authorLink');
+  authorLink.href = `/profile/${recipe.author_id}`;
+  authorLink.textContent = recipe.author_name;
+
+  // Privacy
+  const privacyMap = { 0: "Private", 1: "Public", 2: "Shared" };
+  document.getElementById('privacy').textContent = privacyMap[recipe.privacy] || "Unknown";
+
   // Ingredients
   const ingList = document.getElementById('ingredients');
   recipe.ingredients.forEach(ing => {
@@ -42,13 +51,21 @@ function displayRecipe(recipe) {
   });
 
   // Image
-  if (recipe.image_url) {
+  const imageContainer = document.getElementById('imageContainer');
+  if(Array.isArray(recipe.image_urls)) {
     const img = document.createElement('img');
-    img.src = recipe.image_url;
+    img.src = url;
     img.alt = "Recipe Image";
-    img.className = "recipe-image";
-    document.getElementById('imageContainer').appendChild(img);
-  }
+    img.className = "recipe-image"; 
+    imageContainer.appendChild(img);
+  });
+} else if (recipe.image_url) {
+  const img = document.createElement('img');
+  img.src = recipe.image_url;
+  img.alt = "Recipe Image";
+  img.className = "recipe-image";
+  imageContainer.appendChild(img);
+}
 
   // Reviews
   const reviewsContainer = document.getElementById('reviewsContainer');
@@ -57,8 +74,10 @@ function displayRecipe(recipe) {
       const reviewDiv = document.createElement('div');
       reviewDiv.className = 'review';
 
+      // Star Rating
       const starsDiv = document.createElement('div');
       starsDiv.className = 'stars';
+    
 
       for (let i = 0; i < review.rating; i++) {
         const star = document.createElement('span');
@@ -75,15 +94,30 @@ function displayRecipe(recipe) {
         starsDiv.appendChild(star);
       }
 
+      // Review meta
+      const metaP = document.createElement('p');
+      metaP.className = 'review-meta';
+      metaP.textContent = `By ${review.username} on ${new Date(review.date).toLocaleDateString()}`;
+
+      // Review Comment
       const commentP = document.createElement('p');
       commentP.textContent = review.comment;
 
       reviewDiv.appendChild(starsDiv);
+      reviewDiv.appendChild(metaP);
       reviewDiv.appendChild(commentP);
       reviewsContainer.appendChild(reviewDiv);
     });
   } else {
     reviewsContainer.innerHTML = '<p>No reviews yet.</p>';
+  }
+}
+
+// Show Edit button if user is owner
+  if (recipe.is_owner) {
+    const btn = document.getElementById('editBtn');
+    btn.classList.remove('hidden');
+    btn.onclick = () => location.href = `/edit?id=${recipe.id}`;
   }
 }
 
