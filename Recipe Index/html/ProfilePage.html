@@ -40,11 +40,13 @@
 
       <div class="profile-text">
         <h1 class="username">{{ user.display_name }}</h1>
-        {% if user.profile_description %}
-          <p>{{ user.profile_description }}</p>
-        {% else %}
-          <p style="color: #888; font-style: italic;">They have no bio ;(</p>
-        {% endif %}
+        <div class="profile-bio">
+          {% if user.profile_description %}
+            <p>{{ user.profile_description }}</p>
+          {% else %}
+            <p style="color: #888; font-style: italic;">They have no bio ;(</p>
+          {% endif %}
+        </div>
       </div>
     </div>
     
