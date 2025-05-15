@@ -94,3 +94,13 @@ function renumberInstructions(container) {
       item.querySelector('.item-label').textContent = (idx + 1) + '.';
     });
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+  const ingredientSelect = document.getElementById("ingredient-select");
+  if (ingredientSelect) {
+    $(ingredientSelect).select2({
+      placeholder: "Choose ingredients",
+      allowClear: true
+    });
+  }
+});
