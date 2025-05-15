@@ -44,6 +44,12 @@
     overflow-wrap:anywhere;
 }
 
+.profile-bio {
+    max-height: 180px;    /* or whatever limit you want */
+    overflow-y: auto;     /* shows scrollbar when needed */
+    padding-right: 4px;   /* keeps text clear of scrollbar */
+}
+
 .avg-rating {
     position: absolute;
     top: 0;
