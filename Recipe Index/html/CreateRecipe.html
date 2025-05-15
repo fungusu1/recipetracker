@@ -182,6 +182,17 @@
           </div>
         </div>
       </div>
+      <div id="shared-with-section">
+        <label>Who do you want to share this with?</label>
+        <div id="shared-with-flex-row">
+          <input type="text" id="shared-user-input" placeholder="Enter display name">
+          <button type="button" id="add-shared-user-btn">Add</button>
+        </div>
+        <div id="shared-user-error" style="color:red; margin-top:0.5em;"></div>
+        <div id="shared-user-success">User is found!</div>
+        <ul id="shared-users-list"></ul>
+      </div>
+      <input type="hidden" name="shared_user_ids" id="shared-user-ids">
       <!-- Submit -->
       <div class="text-center">
         <button type="submit" class="submit-btn">Submit Recipe!</button>
