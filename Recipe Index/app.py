@@ -128,13 +128,19 @@ def add_base_ingredient():
 def create():
     if request.method == 'GET':
         base_ingredients = BaseIngredient.query.order_by(BaseIngredient.name).all()
-        return render_template('CreateRecipe.html', base_ingredients=base_ingredients)
+        ingredient_units = {bi.name: bi.default_unit or '' for bi in base_ingredients}
+        return render_template('CreateRecipe.html', base_ingredients=base_ingredients, ingredient_units=ingredient_units)
 
     # POST: parse and save the new recipe
     name        = request.form['title']
     description = request.form.get('description', '')
     cook_time   = int(request.form['cook_time'])
     servings    = int(request.form['servings'])
+
+    # Map privacy radio button to access_level
+    privacy_str = request.form.get('privacy', 'public')
+    privacy_map = {'public': 0, 'private': 1, 'shared': 2}
+    access_level = privacy_map.get(privacy_str, 0)
 
     # Use current_user instead of querying for a default user
     user = current_user
@@ -145,7 +151,8 @@ def create():
         description=description,
         cook_time=cook_time,
         servings=servings,
-        user_id=user.id
+        user_id=user.id,
+        access_level=access_level
     )
     db.session.add(recipe)
     db.session.flush()  # assign recipe.id without commit
@@ -466,7 +473,7 @@ def search():
         .order_by(Recipe.cook_time.asc()) \
         .all()
 
-    # build a mapping of recipe.id → image_url (falling back to “no image”)
+    # build a mapping of recipe.id → image_url (falling back to "no image")
     recipe_images = {
         r.id: (r.images[0].image_url if r.images else url_for('images', filename='no-image-available-icon-vector.jpg'))
         for r in recipes
