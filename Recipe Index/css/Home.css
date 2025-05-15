@@ -108,7 +108,7 @@ h2 {
     font-size: 1.1rem;
     font-weight: 700;
     margin: 0.5rem;
-    color: #333;
+    color: black;
 }
 
 .recipe-preview p {
@@ -286,5 +286,5 @@ h2 {
     /* override Browser.css */
     display: grid;
     grid-template-columns: repeat(3, 1fr);   
-    gap: 1.5rem;                              
+    gap: 1.5rem;            
 }
