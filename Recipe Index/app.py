@@ -4,6 +4,7 @@ from models import db, User, Recipe, RecipeIngredient, RecipeImage, Instruction,
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import func
+from sqlalchemy.orm import joinedload
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from forms import SignUpForm, LoginForm
 
@@ -60,6 +61,7 @@ def homepage():
     # Get top 3 chefs (based on # of recipes)
     top_chefs = (
         db.session.query(User)
+        .options(joinedload(User.profile_image))
         .join(Recipe)
         .group_by(User.id)
         .order_by(func.count(Recipe.id).desc())
@@ -71,6 +73,10 @@ def homepage():
     top_recipes = (
         db.session.query(Recipe)
         .join(Rating)
+        .options(
+            joinedload(Recipe.user)                     # Recipe → user  (JOIN)
+            .joinedload(User.profile_image)             # user  → image (JOIN)
+        )   
         .group_by(Recipe.id)
         .order_by(func.avg(Rating.rating).desc(),
                     func.count(Rating.id).desc(),
@@ -85,6 +91,7 @@ def homepage():
         db.session.query(Rating, User, Recipe)
         .join(User, Rating.user_id == User.id)
         .join(Recipe, Rating.recipe_id == Recipe.id)
+        .options(joinedload(User.profile_image))
         .order_by(Rating.created_at.desc())
         .limit(5)
         .all()
