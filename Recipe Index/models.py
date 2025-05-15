@@ -37,6 +37,10 @@ class BaseIngredient(db.Model):
 
     used_in = db.relationship('RecipeIngredient', backref='ingredient', lazy=True)
 
+shared_recipe_users = db.Table('shared_recipe_users',
+    db.Column('recipe_id', db.Integer, db.ForeignKey('recipe.id'), primary_key=True),
+    db.Column('user_id', db.Integer, db.ForeignKey('user.id'), primary_key=True)
+)
 # Recipes Table
 class Recipe(db.Model):
     __tablename__ = 'recipes'
@@ -46,9 +50,10 @@ class Recipe(db.Model):
     cook_time = db.Column(db.Integer)
     servings = db.Column(db.Integer)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    shared_with_ids = db.Column(db.String(255), default='[]')
     access_level = db.Column(db.Integer, default=0)
     view_count = db.Column(db.Integer, default=0)
+    
+    shared_with = db.relationship('User', secondary=shared_recipe_users, backref='shared_recipes')
 
     @property
     def average_rating(self):

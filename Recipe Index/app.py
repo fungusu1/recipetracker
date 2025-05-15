@@ -128,13 +128,17 @@ def add_base_ingredient():
 def create():
     if request.method == 'GET':
         base_ingredients = BaseIngredient.query.order_by(BaseIngredient.name).all()
-        return render_template('CreateRecipe.html', base_ingredients=base_ingredients)
+        all_users = User.query.order_by(User.display_name).all()
+        return render_template('CreateRecipe.html', base_ingredients=base_ingredients, all_users=all_users)
+       
 
     # POST: parse and save the new recipe
     name        = request.form['title']
     description = request.form.get('description', '')
     cook_time   = int(request.form['cook_time'])
     servings    = int(request.form['servings'])
+    
+    privacy_value = request.form.get('privacy', '1')
 
     # Use current_user instead of querying for a default user
     user = current_user
@@ -146,9 +150,19 @@ def create():
         cook_time=cook_time,
         servings=servings,
         user_id=user.id
+        access_level=int(privacy_value)
     )
     db.session.add(recipe)
     db.session.flush()  # assign recipe.id without commit
+    
+    # Set access level
+    recipe.access_level = int(request.form.get('privacy'))
+    
+    # If shared (2), add selected users
+    if recipe.access_level == 2:
+        shared_user_ids = request.form.getlist('shared_users[]')
+        shared_users = User.query.filter(User.id.in_(shared_user_ids)).all()
+        recipe.shared_with = shared_users
 
     # add images to the recipe
     files = request.files.getlist('images')
@@ -302,10 +316,18 @@ def browse():
 @app.route('/recipe')
 def view_recipe():
     recipe_id = request.args.get('id')
+    if recipe.access_level == 0 and recipe.user_id != current_user.id:
+        abort(403)
     if not recipe_id:
         return redirect(url_for('browse'))
     
     recipe = Recipe.query.get_or_404(recipe_id)
+    
+    if recipe.access_level == 0 and recipe.user_id != current_user.id:
+        abort(403)
+    elif recipe.access_level == 2 and current_user not in recipe.shared_with and recipe.user_id != current_user.id:
+        abort(403)
+
 
     recipe.view_count += 1
     db.session.commit()
@@ -315,6 +337,11 @@ def view_recipe():
 @app.route('/api/recipes/<int:recipe_id>')
 def get_recipe(recipe_id):
     recipe = Recipe.query.get_or_404(recipe_id)
+    
+    # Get the author (user) details from the associated User object
+    author = recipe.user  # This fetches the User object associated with the recipe's user_id
+    author_id = author.id  # This is the user_id, which is the author_id
+    author_name = author.display_name  # This is the author's display name
 
     return jsonify({
         'id': recipe.id,
@@ -323,6 +350,9 @@ def get_recipe(recipe_id):
         'cook_time': recipe.cook_time,
         'servings': recipe.servings,
         'privacy': recipe.access_level,
+        'author_id': author_id, 
+        'author_name': author_name,
+        'is_owner': recipe.user_id == current_user.id,
         'view_count': recipe.view_count,
         'ingredients': [
             f"{ri.quantity} {ri.ingredient.default_unit or ''} {ri.ingredient.name}"
