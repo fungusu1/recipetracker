@@ -200,8 +200,26 @@ def create():
             )
             db.session.add(inst)
 
+    # After db.session.commit() for the recipe
+    shared_user_ids = request.form.get('shared_user_ids', '')
+    if access_level == 2 and shared_user_ids:
+        user_ids = [int(uid) for uid in shared_user_ids.split(',') if uid]
+        recipe.shared_with_ids = str(user_ids)
+
     db.session.commit()
     return redirect(url_for('homepage'))
+
+@app.route('/api/find_user', methods=['POST'])
+@login_required
+def find_user():
+    data = request.get_json() or {}
+    display_name = (data.get('display_name') or '').strip()
+    if not display_name:
+        return jsonify(error="Display name required"), 400
+    user = User.query.filter(func.lower(User.display_name) == display_name.lower()).first()
+    if not user:
+        return jsonify(error="User not found"), 404
+    return jsonify(id=user.id, display_name=user.display_name)
 
 @app.route('/browse')
 def browse():
@@ -485,8 +503,6 @@ def search():
         recipes=recipes,
         recipe_images=recipe_images
     )
-
-
 
 #Run Server
 if __name__ == '__main__':
