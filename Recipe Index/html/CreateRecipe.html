@@ -5,12 +5,6 @@
   <title>Create a Recipe</title>
   <link rel="stylesheet" href="../css/CRecipe.css">
   <link rel="stylesheet" href="../css/header.css">
-  
-  <!-- Select2 CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-  <!-- Select2 JS -->
-  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js" defer></script>
-  
   <script src="../js/CRecipe.js" defer></script>
 </head>
 
@@ -84,14 +78,14 @@
 
       <!-- Ingredients -->
       <div>
-        <label for="ingredient-select">Select Ingredients:</label>
-        <select id="ingredient-select" name="ingredient_ids[]" multiple="multiple" style="width: 100%">
-          {% for ingredient in all_ingredients %}
-          <option value="{{ ingredient.id }}">{{ ingredient.name }}</option>
-          {% endfor %}
-        </select>
-        <small>Hold Ctrl (Cmd on Mac) to select multiple.</small>
-      </div>
+        <label>Ingredients:</label>
+        <button
+          type="button"
+          class="add-new-type-btn"
+          onclick="promptNewIngredient()"
+          title="Add a new ingredient type">
+          ＋ New Type
+        </button>
 
         <div id="ingredients-container">
           <div class="ingredient-item flex-row">
@@ -170,13 +164,6 @@
           >
         </div>
         <small>You can select multiple files</small>
-      </div>
-      <div class="form-group">
-        <label for="privacy">Privacy:</label>
-        <select id="privacy" name="privacy" class="form-control" required>
-          <option value="Public">Public</option>
-          <option value="Private">Private</option>
-        </select>
       </div>
       <!-- Submit -->
       <div class="text-center">
