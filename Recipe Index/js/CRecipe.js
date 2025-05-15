@@ -254,4 +254,87 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
   }
+
+  // Show/hide shared section
+  document.querySelectorAll('input[name="privacy"]').forEach(radio => {
+    radio.addEventListener('change', function() {
+      document.getElementById('shared-with-section').style.display =
+        this.value === 'shared' ? 'block' : 'none';
+    });
+  });
+
+  // Add shared user
+  const sharedUsers = [];
+  document.getElementById('add-shared-user-btn').addEventListener('click', async function() {
+    const input = document.getElementById('shared-user-input');
+    const errorDiv = document.getElementById('shared-user-error');
+    const list = document.getElementById('shared-users-list');
+    const hiddenInput = document.getElementById('shared-user-ids');
+    const name = input.value.trim();
+    errorDiv.textContent = '';
+    if (!name) return;
+
+    // Prevent duplicates
+    if (sharedUsers.some(u => u.display_name.toLowerCase() === name.toLowerCase())) {
+      errorDiv.textContent = 'Already added.';
+      return;
+    }
+
+
+    try {
+      const resp = await fetch('/api/find_user', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({display_name: name})
+      });
+      const data = await resp.json();
+      if (!resp.ok) {
+        errorDiv.textContent = data.error || 'User not found';
+        return;
+      }
+      sharedUsers.push({id: data.id, display_name: data.display_name});
+      // Update list
+      const li = document.createElement('li');
+      li.textContent = data.display_name;
+
+      // Add delete button
+      const delBtn = document.createElement('button');
+      delBtn.textContent = '✕';
+      delBtn.style.marginLeft = '0.5em';
+      delBtn.style.background = '#ef4444';
+      delBtn.style.color = 'white';
+      delBtn.style.border = 'none';
+      delBtn.style.borderRadius = '0.25em';
+      delBtn.style.cursor = 'pointer';
+      delBtn.style.fontWeight = 'bold';
+      delBtn.style.fontSize = '1em';
+      delBtn.onclick = function() {
+        const idx = sharedUsers.findIndex(u => u.id === data.id);
+        if (idx !== -1) sharedUsers.splice(idx, 1);
+        li.remove();
+        // Update hidden input
+        hiddenInput.value = sharedUsers.map(u => u.id).join(',');
+      };
+
+      li.appendChild(delBtn);
+      list.appendChild(li);
+
+      // Update hidden input
+      hiddenInput.value = sharedUsers.map(u => u.id).join(',');
+      input.value = '';
+
+      const successDiv = document.getElementById('shared-user-success');
+      successDiv.style.display = 'block';
+      setTimeout(() => { successDiv.style.display = 'none'; }, 1500);
+    } catch (err) {
+      errorDiv.textContent = 'Error: ' + err.message;
+    }
+  });
+
+  document.getElementById('shared-user-input').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      document.getElementById('add-shared-user-btn').click();
+    }
+  });
 });
