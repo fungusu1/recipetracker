@@ -315,10 +315,6 @@ def view_recipe():
 @app.route('/api/recipes/<int:recipe_id>')
 def get_recipe(recipe_id):
     recipe = Recipe.query.get_or_404(recipe_id)
-    # Get the author (user) details from the associated User object
-    author = recipe.user  # This fetches the User object associated with the recipe's user_id
-    author_id = author.id  # This is the user_id, which is the author_id
-    author_name = author.display_name  # This is the author's display name
 
     return jsonify({
         'id': recipe.id,
@@ -327,9 +323,6 @@ def get_recipe(recipe_id):
         'cook_time': recipe.cook_time,
         'servings': recipe.servings,
         'privacy': recipe.access_level,
-        'author_id': author_id, 
-        'author_name': author_name,
-        'is_owner': recipe.user_id == current_user.id,
         'view_count': recipe.view_count,
         'ingredients': [
             f"{ri.quantity} {ri.ingredient.default_unit or ''} {ri.ingredient.name}"
