@@ -95,7 +95,10 @@
     <div class="recipe-listing">
       {% for recipe in recipes %}
       <div class="recipe-preview" data-recipe-id="{{ recipe.id }}" onclick="location.href='/recipe?id={{ recipe.id }}'">
-        <img src="{{ recipe_images[recipe.id] }}" alt="Recipe Image">
+        <img class="browser-card-img"
+             src="{{ recipe.images[0].image_url if recipe.images else url_for('images', filename='no-image-available-icon-vector.jpg') }}"
+             alt="{{ recipe.name }}"
+             onerror="this.src='{{ url_for('images', filename='no-image-available-icon-vector.jpg') }}'">
         <h3>{{ recipe.name }}</h3>
         <p>{{ recipe.description }}</p>
         <div class="recipe-meta">

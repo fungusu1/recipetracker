@@ -302,7 +302,61 @@ def get_recipe(recipe_id):
 @login_required
 def profile():
     flash(f'Welcome back, {current_user.display_name}', 'greeting')
-    return render_template('ProfilePage.html', user=current_user)
+    sort = request.args.get('sort', 'title')
+    query = Recipe.query.filter_by(user_id=current_user.id)
+    if sort == 'rating':
+        recipes = sorted(query.all(), key=lambda r: r.average_rating, reverse=True)
+    elif sort == 'cook-time':
+        recipes = query.order_by(Recipe.cook_time.asc()).all()
+    elif sort == 'quantity':
+        recipes = query.order_by(Recipe.servings.desc()).all()
+    else:  # 'title' or default
+        recipes = query.order_by(Recipe.name.asc()).all()
+    return render_template('ProfilePage.html', user=current_user, recipes=recipes, selected_sort=sort)
+
+@app.route('/profile/<int:user_id>')
+def public_profile(user_id):
+    user = User.query.get_or_404(user_id)
+    sort = request.args.get('sort', 'title')
+    query = Recipe.query.filter_by(user_id=user.id)
+    if sort == 'rating':
+        recipes = sorted(query.all(), key=lambda r: r.average_rating, reverse=True)
+    elif sort == 'cook-time':
+        recipes = query.order_by(Recipe.cook_time.asc()).all()
+    elif sort == 'quantity':
+        recipes = query.order_by(Recipe.servings.desc()).all()
+    else:  # 'title' or default
+        recipes = query.order_by(Recipe.name.asc()).all()
+    return render_template('ProfilePage.html', user=user, recipes=recipes, selected_sort=sort)
+
+@app.route('/profile/edit', methods=['GET', 'POST'])
+@login_required
+def edit_profile():
+    if request.method == 'POST':
+        new_bio = request.form.get('profile_description', '').strip()
+        if new_bio:
+            current_user.profile_description = new_bio
+        # Handle profile image upload
+        file = request.files.get('profile_image')
+        if file and file.filename:
+            filename = secure_filename(file.filename)
+            img_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(img_path)
+            # Remove old image if exists
+            if current_user.profile_image:
+                old_path = current_user.profile_image.image_url
+                if old_path and os.path.exists(os.path.join(app.root_path, old_path.replace('/images/', 'images/'))):
+                    try:
+                        os.remove(os.path.join(app.root_path, old_path.replace('/images/', 'images/')))
+                    except Exception:
+                        pass
+                current_user.profile_image.image_url = url_for('images', filename=filename)
+            else:
+                from models import UserProfileImage
+                db.session.add(UserProfileImage(user_id=current_user.id, image_url=url_for('images', filename=filename)))
+        db.session.commit()
+        return redirect(url_for('profile'))
+    return render_template('EditProfile.html', user=current_user)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -386,6 +440,3 @@ def search():
 #Run Server
 if __name__ == '__main__':
     app.run(debug=True)
-
-
-

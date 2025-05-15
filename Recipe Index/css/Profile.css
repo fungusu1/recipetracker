@@ -5,11 +5,10 @@
     max-width: 150px;
     max-height: 150px;
     object-fit: cover;
-    /* margin-right: 15px; */
 }
 
 .container {
-    position: relative; /* enable absolute positioning inside it */
+    position: relative;
     max-width: 60rem;
 }
 
@@ -35,7 +34,6 @@
 }
 
 .profile-text {
-    /* border: 5px solid black; */
     position: relative; 
     margin-top: -15px;
     display: flex;
@@ -76,8 +74,104 @@
 .recipe-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 1rem;
+    gap: 1.5rem;
     margin-top: 1rem;
+}
+
+.browser-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.5rem;
+    padding: 1.5rem;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    box-sizing: border-box;
+}
+
+.browser-card {
+    background: #f6faf8;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    overflow: hidden;
+    transition: transform 0.18s cubic-bezier(.4,0,.2,1), box-shadow 0.18s cubic-bezier(.4,0,.2,1);
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 340px;
+    min-width: 0;
+    height: 400px;
+    min-height: 400px;
+    max-height: 400px;
+    cursor: pointer;
+    border: 1px solid #e0e0e0;
+    box-sizing: border-box;
+}
+
+.browser-card:hover {
+    transform: scale(1.04);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.13);
+    z-index: 2;
+}
+
+.browser-card-img-container {
+    width: 100%;
+    height: 150px;
+    background: #e9ecef;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.browser-card-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.browser-card-content {
+    padding: 1rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 250px;
+    max-height: 250px;
+    overflow: hidden;
+}
+
+.browser-card-title {
+    font-size: 1.1rem;
+    font-weight: bold;
+    margin: 0 0 0.5rem 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.browser-card-desc {
+    font-size: 0.95rem;
+    color: #444;
+    margin-bottom: 0.7rem;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 6;
+    -webkit-box-orient: vertical;
+}
+
+.browser-card-meta {
+    font-size: 0.92rem;
+    color: #222;
+    margin-bottom: 0.5rem;
+}
+
+.browser-card-rating {
+    font-size: 0.95rem;
+    color: #0a7c4a;
+    font-weight: 500;
 }
 
 .recipe-card {
@@ -116,7 +210,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    flex-wrap: wrap; /* optional: wrap on smaller screens */
+    flex-wrap: wrap;
     margin-bottom: 1rem;
 }
   
@@ -144,4 +238,82 @@
     margin: 1rem 0;
     width: fit-content;
     align-content: center;
+}
+
+.edit-profile-btn {
+  margin-top: 10px;
+  background-color: #e0e0e0;
+  color: #222;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 0.375rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.15s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+.edit-profile-btn:hover {
+  background-color: #bdbdbd;
+}
+
+.star-rating {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.stars-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+.star {
+  position: relative;
+  display: inline-block;
+  width: 1.5em;
+  font-size: 1.5rem;
+  color: #ddd;
+}
+.star.full {
+  color: #ffd700;
+}
+.star.empty {
+  color: #ddd;
+}
+.star.half {
+  position: relative;
+  display: inline-block;
+  width: 1.5em;
+  color: #ddd;
+  overflow: hidden;
+}
+.star.half::before {
+  content: '\2605';
+  color: #ffd700;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 50%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 2;
+  display: block;
+  clip-path: inset(0 50% 0 0);
+}
+.star.half::after {
+  content: '\2605';
+  color: #ddd;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  display: block;
+}
+.avg-rating-number {
+  font-size: 1.1rem;
+  color: #444;
+  margin-top: 0.25em;
+  text-align: center;
 }
