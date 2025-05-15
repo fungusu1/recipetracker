@@ -51,7 +51,7 @@
       <!-- Top Recipes Section (based on rating)-->
       {% for recipe in top_recipes %}
       <div class="recipe-preview"
-        onclick="location.href='{{ url_for('get_recipe', recipe_id=recipe.id) }}'">
+      onclick="location.href='/recipe?id={{ recipe.id }}'">
         <img class="browser-card-img"
              src="{{ recipe.images[0].image_url
                      if recipe.images
