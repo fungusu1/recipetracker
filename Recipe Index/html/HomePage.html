@@ -89,7 +89,7 @@
       <!-- Top Chefs Section (based on # of recipes)-->
       {% for chef in top_chefs %}
       <a href="{{ url_for('public_profile', user_id=chef.id) }}"
-      class="single-profile-link">
+      class="recipe-link">
       <div class="single-profile">
       <img
         src="{{ chef.profile_image.image_url or '' }}"
@@ -110,7 +110,7 @@
       <!-- Latest Reviews Section -->
       {% for review, user, recipe in latest_reviews %}
       <div class="single-review">
-      <a href="{{ url_for('public_profile', user_id=user.id) }}">
+      <a href="{{ url_for('public_profile', user_id=user.id) }}" class="recipe-link">
         <img src="{{ user.profile_image.image_url
           if user.profile_image
           else url_for('images', filename='profile_placeholder.jpg') }}"
