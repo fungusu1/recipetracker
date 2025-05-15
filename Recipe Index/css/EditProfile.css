@@ -1,0 +1,118 @@
+body, input, textarea, button {
+  font-family: system-ui, sans-serif;
+}
+
+.edit-profile-container {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 20px;
+  background-color: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+}
+
+.edit-profile-form {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1.2rem;
+}
+
+.edit-profile-form > div {
+  width: 100%;
+}
+
+.edit-profile-form textarea {
+  width: 100%;
+  max-width: 500px;
+  font-size: 1rem;
+  padding: 0.5rem;
+  border-radius: 6px;
+  border: 1px solid #bbb;
+  resize: vertical;
+}
+
+.edit-profile-form img {
+  max-width: 150px;
+  max-height: 150px;
+  border-radius: 10%;
+  border: 3px solid #bbb;
+  margin-top: 0.5rem;
+}
+
+.edit-profile-form label {
+  font-weight: bold;
+}
+
+.edit-profile-form .edit-profile-btn {
+  margin-top: 0;
+}
+
+.edit-profile-form .edit-profile-btn + .edit-profile-btn {
+  background: #eee;
+  color: #333;
+  margin-left: 10px;
+}
+
+.edit-profile-pic-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 2rem;
+  width: 100%;
+}
+
+.edit-profile-pic-col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  text-align: left;
+}
+
+.edit-profile-pic-col label,
+.edit-profile-pic-col input[type="file"] {
+  display: block;
+}
+
+.edit-profile-pic-col label {
+  margin-bottom: 0.5rem;
+}
+
+.edit-profile-pic-col input[type="file"] {
+  margin-bottom: 0.5rem;
+}
+
+.edit-profile-btn {
+  margin-top: 0;
+  background-color: #10b981;
+  color: white;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 0.375rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.15s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+.edit-profile-btn:hover {
+  background-color: #059669;
+}
+
+.edit-profile-btn.cancel {
+  background: #eee;
+  color: #333;
+  margin-left: 10px;
+}
+
+.edit-profile-btn-row {
+  display: flex;
+  gap: 1rem;
+}
+
+.edit-profile-file-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+} 

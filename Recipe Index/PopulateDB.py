@@ -6,7 +6,8 @@ from werkzeug.security import generate_password_hash
 from datetime import datetime
 
 from app import app
-from models import db, User, BaseIngredient, Recipe, RecipeIngredient, Instruction, RecipeImage, Rating
+from models import db, User, BaseIngredient, Recipe, RecipeIngredient, Instruction, RecipeImage, Rating, UserProfileImage
+
 
 
 def main():
@@ -86,6 +87,12 @@ def main():
             user = User(email=email, password=hashed_pw, display_name=display_name, profile_description=profile_description)
             db.session.add(user)
             users.append(user)
+        db.session.commit()
+
+        # Add a profile image
+        for user in users:
+            profile_img_url = fake.image_url(width=256, height=256)
+            db.session.add(UserProfileImage(user_id=user.id, image_url=profile_img_url))
         db.session.commit()
 
         all_ingredients = BaseIngredient.query.all()

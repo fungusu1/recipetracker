@@ -16,6 +16,15 @@ class User(UserMixin, db.Model):
     def total_recipes(self):
         return len(self.recipes)
 
+    @property
+    def average_recipe_rating(self):
+        if not self.recipes:
+            return 0.0
+        ratings = [r.average_rating for r in self.recipes if r.ratings]
+        if not ratings:
+            return 0.0
+        return sum(ratings) / len(ratings)
+
     recipes = db.relationship('Recipe', backref='user', lazy=True)
     ratings = db.relationship('Rating', backref='user', lazy=True)
 
@@ -89,3 +98,12 @@ class Rating(db.Model):
     __table_args__ = (
         db.UniqueConstraint('recipe_id', 'user_id', name='unique_recipe_user_rating'),
     )
+
+# User Profile Image Table
+class UserProfileImage(db.Model):
+    __tablename__ = 'user_profile_images'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), unique=True, nullable=False)
+    image_url = db.Column(db.String(255), nullable=False)
+
+    user = db.relationship('User', backref=db.backref('profile_image', uselist=False))

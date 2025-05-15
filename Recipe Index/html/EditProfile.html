@@ -1,0 +1,38 @@
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Edit Profile - {{ user.display_name }}</title>
+  <link rel="stylesheet" href="../css/Profile.css">
+  <link rel="stylesheet" href="../css/header.css">
+  <link rel="stylesheet" href="../css/EditProfile.css">
+</head>
+<body class="page-body">
+    <!-- Header -->
+    {% include 'Header.html' %}
+
+  <!-- Content -->
+  <div class="edit-profile-container">
+    <h1>Edit Profile</h1>
+    <form method="POST" enctype="multipart/form-data" class="edit-profile-form">
+      <div>
+        <label for="profile_description">Profile Description:</label><br>
+        <textarea id="profile_description" name="profile_description" rows="4" cols="50">{{ user.profile_description }}</textarea>
+      </div>
+      <div class="edit-profile-pic-row">
+        <div class="edit-profile-pic-col">
+          <b>Current Profile Picture:</b>
+          <img src="{{ user.profile_image.image_url if user.profile_image else url_for('images', filename='profile_placeholder.jpg') }}" alt="Profile Picture">
+        </div>
+        <div class="edit-profile-pic-col">
+          <label for="profile_image">Change Profile Picture:</label>
+          <input type="file" id="profile_image" name="profile_image" accept="image/*">
+        </div>
+      </div>
+      <div class="edit-profile-btn-row">
+        <button type="submit" class="edit-profile-btn">Confirm Edits</button>
+        <a href="/profile" class="edit-profile-btn cancel">Cancel</a>
+      </div>
+    </form>
+  </div>
+</body>
+</html> 

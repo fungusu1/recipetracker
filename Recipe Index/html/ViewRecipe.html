@@ -34,27 +34,7 @@
 <body class="page-body">
 
   <!-- Header -->
-  <header class="header">
-    <div class="header-left">
-      <a href="/">Recipe Index</a>
-      <a href="/browse" class="nav-link">Breakfast</a>
-      <a href="/browse" class="nav-link">Lunch</a>
-      <a href="/browse" class="nav-link">Dinner</a>
-    </div>
-    <div class="header-center">
-      <input type="text" placeholder="Search recipes...">
-    </div>
-    <div class="header-right">
-      {% if current_user.is_authenticated %}
-      <a href="/logout" class="nav-link">Log Out</a>
-      {% else %}
-      <a href="/login" class="nav-link">Log In</a>
-      <a href="/signup" class="nav-link">Sign Up</a>
-      {% endif %}
-      <button onclick="location.href='/create'">Create!</button>
-      <a href="/profile" class="profile-link">Profile</a>
-    </div>
-  </header>
+  {% include 'Header.html' %}
 
   <!-- Recipe Content -->
   <div id="printSection" class="container">
@@ -65,6 +45,7 @@
 
     <p><strong>Cook Time:</strong> <span id="cookTime"></span> minutes</p>
     <p><strong>Servings:</strong> <span id="servings"></span></p>
+    <p><strong>Views:</strong> <span id="views"></span></p>
 
     <h2>Ingredients</h2>
     <ul id="ingredients"></ul>
