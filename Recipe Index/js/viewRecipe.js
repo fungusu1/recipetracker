@@ -23,6 +23,7 @@ function displayRecipe(recipe) {
   document.getElementById('cookTime').textContent = recipe.cook_time;
   document.getElementById('servings').textContent = recipe.servings;
   document.getElementById('privacy').textContent = recipe.privacy;
+  document.getElementById('views').textContent = recipe.view_count;
 
   // Ingredients
   const ingList = document.getElementById('ingredients');

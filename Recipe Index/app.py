@@ -1,6 +1,6 @@
 import os
 from flask import Flask, render_template, send_from_directory, redirect, url_for, request, jsonify, session, flash, get_flashed_messages
-from models import db, User, Recipe, RecipeIngredient, RecipeImage, Instruction, BaseIngredient
+from models import db, User, Recipe, RecipeIngredient, RecipeImage, Instruction, BaseIngredient, Rating
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import func
@@ -56,7 +56,41 @@ def images(filename):
 #Page Routing
 @app.route('/')
 def homepage():
-    return render_template('HomePage.html')
+
+    # Get top 3 chefs (based on # of recipes)
+    top_chefs = (
+        db.session.query(User)
+        .join(Recipe)
+        .group_by(User.id)
+        .order_by(func.count(Recipe.id).desc())
+        .limit(3)
+        .all()
+    )
+
+    # Get top 3 recipes (based on highest avg ratings)
+    top_recipes = (
+        db.session.query(Recipe)
+        .join(Rating)
+        .group_by(Recipe.id)
+        .order_by(func.avg(Rating.rating).desc(),
+                    func.count(Rating.id).desc(),
+                    func.max(Rating.created_at).desc()
+        )
+        .limit(3)
+        .all()
+    )
+
+    # Get the 3/5 latest recipes
+    latest_reviews = (
+        db.session.query(Rating, User, Recipe)
+        .join(User, Rating.user_id == User.id)
+        .join(Recipe, Rating.recipe_id == Recipe.id)
+        .order_by(Rating.created_at.desc())
+        .limit(5)
+        .all()
+    )
+
+    return render_template('HomePage.html', top_chefs=top_chefs, top_recipes=top_recipes, latest_reviews=latest_reviews)
 
 @app.route('/api/base_ingredients', methods=['POST'])
 def add_base_ingredient():
@@ -267,7 +301,16 @@ def browse():
 
 @app.route('/recipe')
 def view_recipe():
-    return render_template('ViewRecipe.html')
+    recipe_id = request.args.get('id')
+    if not recipe_id:
+        return redirect(url_for('browse'))
+    
+    recipe = Recipe.query.get_or_404(recipe_id)
+
+    recipe.view_count += 1
+    db.session.commit()
+    
+    return render_template('ViewRecipe.html', recipe=recipe)
 
 @app.route('/api/recipes/<int:recipe_id>')
 def get_recipe(recipe_id):
@@ -280,6 +323,7 @@ def get_recipe(recipe_id):
         'cook_time': recipe.cook_time,
         'servings': recipe.servings,
         'privacy': recipe.access_level,
+        'view_count': recipe.view_count,
         'ingredients': [
             f"{ri.quantity} {ri.ingredient.default_unit or ''} {ri.ingredient.name}"
             for ri in recipe.ingredients
