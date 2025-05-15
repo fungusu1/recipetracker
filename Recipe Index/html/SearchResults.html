@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Search Results for “{{ query }}”</title>
+  <link rel="stylesheet" href="../css/header.css">
+  <link rel="stylesheet" href="../css/Browser.css">
+</head>
+<body class="page-body">
+  {% include 'Header.html' %}
+
+  <main class="browse-container" id="search-results-main">
+    <h2 class="ingredient-title">
+      Search results for “{{ query }}”
+    </h2>
+
+    <div class="recipe-listing">
+      {% if recipes %}
+        {% for recipe in recipes %}
+          <div class="recipe-preview"
+               data-recipe-id="{{ recipe.id }}"
+               onclick="location.href='/recipe?id={{ recipe.id }}'">
+            <img src="{{ recipe_images[recipe.id] }}"
+                 alt="Recipe Image">
+            <h3>{{ recipe.name }}</h3>
+            <p>{{ recipe.description }}</p>
+            <div class="recipe-meta">
+              <span><strong>Cook Time:</strong> {{ recipe.cook_time }} mins</span>
+              <span class="meta-divider">|</span>
+              <span><strong>Serves:</strong> {{ recipe.servings }}</span>
+            </div>
+          </div>
+        {% endfor %}
+      {% else %}
+        <p style="text-align:center; margin-top:2rem;">
+          No recipes found for “{{ query }}.”
+        </p>
+      {% endif %}
+    </div>
+  </main>
+</body>
+</html>

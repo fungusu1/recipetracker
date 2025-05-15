@@ -9,6 +9,7 @@ from app import app
 from models import db, User, BaseIngredient, Recipe, RecipeIngredient, Instruction, RecipeImage, Rating, UserProfileImage
 
 
+
 def main():
     if len(sys.argv) < 2:
         print("Usage: python populate_db.py <num_recipes>")
@@ -35,9 +36,48 @@ def main():
                 db.session.add(BaseIngredient(name=name, default_unit=unit))
         db.session.commit()
 
+        # Add 3 hardcoded test users
+        test_users = [
+            {
+                "email": "test1@email.com",
+                "password": "password111",
+                "display_name": "Test User 1",
+                "profile_description": "Test user 1 profile description!"
+            },
+
+            {
+                "email": "test2@email.com",
+                "password": "password222",
+                "display_name": "Test User 2",
+                "profile_description": "Hi, this is test user 2 profile description."
+            },
+
+            {
+                "email": "test3@email.com",
+                "password": "password333",
+                "display_name": "Test User 3",
+                "profile_description": "Test user 3 profile description is here."
+            }
+        ]
+
+        # List of users (test and dummy)
+        users = []
+
+        # Add test users to the database
+        for user_data in test_users:
+            if not User.query.filter_by(email=user_data["email"]).first():
+                user = User(
+                    email=user_data["email"],
+                    password=generate_password_hash(user_data["password"]),
+                    display_name=user_data["display_name"],
+                    profile_description=user_data["profile_description"]
+                )
+                db.session.add(user)
+                users.append(user)
+        db.session.commit()
+
         # Create a handful of users
         num_users = min(max(1, num_recipes // 2), 10)
-        users = []
         for _ in range(num_users):
             email = fake.unique.email()
             password = fake.password(length=12)
