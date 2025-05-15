@@ -398,3 +398,66 @@ input[type="number"]::-webkit-outer-spin-button {
 .overlay-actions button:last-child:hover {
   background-color: #bdbdbd;
 }
+
+#shared-with-section {
+  display: none;
+}
+
+#shared-with-flex-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+#shared-user-input {
+  flex: 1;
+  min-width: 0;
+  padding-right: 0.5em;
+  margin-right: 0;
+  font-size: 1rem;
+  border-radius: 0.375rem;
+  border: 1px solid #d1d5db;
+  height: 2.25rem;
+}
+
+#add-shared-user-btn {
+  background-color: #10b981;
+  color: white;
+  border: none;
+  border-radius: 0.375rem;
+  padding: 0.5rem 1.25rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  height: 2.25rem;
+  margin-left: 0;
+  transition: background 0.15s;
+  min-width: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#add-shared-user-btn:hover {
+  background-color: #059669;
+}
+
+#shared-users-list {
+  margin: 0.25em 0 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+#shared-user-success {
+  color: #10b981;
+  margin-top: 0.5em;
+  font-weight: 500;
+  display: none;
+}
+
+#ingredient-overlay-error,
+#shared-user-error {
+  color: red;
+  margin-top: 0.5em;
+}
