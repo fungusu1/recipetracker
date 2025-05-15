@@ -5,6 +5,11 @@
   <title>Create a Recipe</title>
   <link rel="stylesheet" href="../css/CRecipe.css">
   <link rel="stylesheet" href="../css/header.css">
+
+  <!-- Select2 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+  <!-- Select2 JS -->
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js" defer></script>
   <script src="../js/CRecipe.js" defer></script>
 </head>
 
@@ -77,54 +82,49 @@
       </datalist>
 
       <!-- Ingredients -->
-      <div>
-        <label>Ingredients:</label>
-        <button
-          type="button"
-          class="add-new-type-btn"
-          onclick="promptNewIngredient()"
-          title="Add a new ingredient type">
-          ＋ New Type
-        </button>
-
-        <div id="ingredients-container">
-          <div class="ingredient-item flex-row">
-            <div class="flex-half">
-              <input
-                list="ingredient-list"
-                name="ingredient_name"
-                required
-                placeholder="Select ingredient"
-                class="textarea-wrapper"
-              >
-            </div>
-            <div class="flex-half">
-              <input
-                type="text"
-                name="quantity"
-                required
-                placeholder="e.g. 2 cups"
-                class="quantity-input"
-              >
-            </div>
-            <button
-              type="button"
-              class="remove-btn hidden"
-              onclick="removeIngredientField(this)">
-              ✕
-            </button>
-          </div>
-        </div>
-
-        <div class="mt-2">
-          <button
-            type="button"
-            class="add-btn"
-            onclick="addIngredientField()">
-            ＋ Add Ingredient
-          </button>
-        </div>
+       <div>
+        <label for="ingredient-select">Select Ingredients:</label>
+        <select id="ingredient-select" name="ingredient_ids[]" multiple="multiple" style="width: 100%">
+          {% for ingredient in all_ingredients %}
+          <option value="{{ ingredient.id }}">{{ ingredient.name }}</option>
+          {% endfor %}
+        </select>
+        <small>Hold Ctrl (Cmd on Mac) to select multiple.</small>
       </div>
+      
+      <div id="ingredients-container">
+        <div class="ingredient-item flex-row">
+          <div class="flex-half">
+            <input
+            list="ingredient-list"
+            name="ingredient_name"
+            required
+            placeholder="Select ingredient"
+            class="textarea-wrapper">
+          </div>
+          <div class="flex-half">
+            <input
+            type="text"
+            name="quantity"
+            required
+            placeholder="e.g. 2 cups"
+            class="quantity-input">
+          </div>
+          <button
+          type="button"
+          class="remove-btn hidden"
+          onclick="removeIngredientField(this)">✕
+        </button>
+      </div>
+      
+      <div class="mt-2">
+        <button
+        type="button"
+        class="add-btn"
+        onclick="addIngredientField()">
+        ＋ Add Ingredient
+      </button>
+    </div>
 
       <!-- Instructions -->
       <div>
@@ -153,17 +153,41 @@
         </div>
       </div>
       <div>
-        <label for="images">Recipe Images:</label>
+        <label>Recipe Images:</label>
         <div id="images-container">
-          <input
-            type="file"
-            id="images"
-            name="images"
-            accept="image/*"
-            multiple
-          >
+          <div class="image-item">
+            <input type="file" name="images" accept="image/*">
+            <label>
+              <input type="radio" name="primary_image" value="0" checked>
+              Primary
+            </label>
+            <button type="button" class="remove-btn hidden">✕</button>
+          </div>
         </div>
-        <small>You can select multiple files</small>
+        <button type="button" onclick="addImageField()" class="add-btn">＋ Add Image</button>
+        <small>You can upload multiple images. One must be marked as primary.</small>
+      </div>
+      <small>You can select multiple files</small>
+    </div>
+
+      <div>
+        <label for="privacy">Privacy:</label>
+        <select id="privacy" name="privacy" required>
+          <option value="0">Private</option>
+          <option value="1">Public</option>
+          <option value="2">Shared</option>
+        </select>
+      </div>
+
+      <div id="shared-users-container" style="display: none;">
+        <label for="shared_users">Select Users to Share With:</label>
+        <select id="shared_users" name="shared_users[]" multiple="multiple" style="width: 100%;">
+          {% for user in all_users %}
+          {% if user.id != current_user.id %}
+          <option value="{{ user.id }}">{{ user.display_name }}</option>
+          {% endif %}
+          {% endfor %}
+        </select>
       </div>
       <!-- Submit -->
       <div class="text-center">
