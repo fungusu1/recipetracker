@@ -281,3 +281,10 @@ h2 {
 .star-empty {
     color: #ccc;
 }
+
+.top-recipes-section .recipe-listing {
+    /* override Browser.css */
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);   
+    gap: 1.5rem;                              
+}
