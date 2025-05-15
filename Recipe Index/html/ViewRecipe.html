@@ -5,6 +5,30 @@
   <title id="pageTitle">Recipe</title>
   <link rel="stylesheet" href="../css/VRecipe.css">
   <link rel="stylesheet" href="../css/header.css">
+  
+  <!-- Print-only styles -->
+  <style>
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+
+      #printSection, #printSection * {
+        visibility: visible;
+      }
+
+      #printSection {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+      }
+
+      .print-button, #editBtn, .header {
+        display: none !important;
+      }
+    }
+  </style>
 </head>
 
 <body class="page-body">
@@ -12,10 +36,11 @@
   <!-- Header -->
   {% include 'Header.html' %}
 
-
   <!-- Recipe Content -->
-  <div class="container">
+  <div id="printSection" class="container">
     <h1 id="title"></h1>
+    <p><strong>Author:</strong> <a href="#" id="authorLink"></a></p>
+    <p><strong>Views:</strong> <span id="viewCount"></span></p>
     <p id="description"></p>
 
     <p><strong>Cook Time:</strong> <span id="cookTime"></span> minutes</p>
@@ -28,17 +53,24 @@
     <h2>Instructions</h2>
     <ol id="instructions"></ol>
 
-    <div id="imageContainer"></div>
+    <div id="imageContainer" class="image-gallery"></div>
 
     <p><strong>Privacy:</strong> <span id="privacy"></span></p>
 
     <h2>Reviews</h2>
     <div id="reviewsContainer"></div>
-
-    <button class="print-button" onclick="window.print()">Print Recipe</button>
   </div>
 
+  <button class="print-button" onclick="printRecipe()">Print Recipe</button>
+  <button id="editBtn" class="hidden" onclick="location.href='/edit?id='">Edit</button>
+
   <script src="../js/viewRecipe.js"></script>
+  <script>
+    function printRecipe() {
+      window.print();
+    }
+  </script>
 </body>
 </html>
+
 
