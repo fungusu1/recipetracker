@@ -6,6 +6,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import func
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from forms import SignUpForm, LoginForm
+from datetime import datetime
 
 app = Flask(__name__, template_folder='html')
 base_dir = os.path.abspath(os.path.dirname(__file__))
@@ -207,7 +208,7 @@ def create():
         recipe.shared_with_ids = str(user_ids)
 
     db.session.commit()
-    return redirect(url_for('homepage'))
+    return redirect(url_for('view_recipe', id=recipe.id))
 
 @app.route('/api/find_user', methods=['POST'])
 @login_required
@@ -332,6 +333,24 @@ def view_recipe():
     
     recipe = Recipe.query.get_or_404(recipe_id)
 
+    # Privacy logic
+    if recipe.access_level == 1:
+        # Private: only author
+        if not current_user.is_authenticated or current_user.id != recipe.user_id:
+            flash('You do not have permission to view this recipe.', 'error')
+            return redirect(url_for('homepage'))
+    elif recipe.access_level == 2:
+        # Shared: only author and shared users
+        allowed_ids = []
+        try:
+            import ast
+            allowed_ids = ast.literal_eval(recipe.shared_with_ids) if recipe.shared_with_ids else []
+        except Exception:
+            allowed_ids = []
+        if not current_user.is_authenticated or (current_user.id != recipe.user_id and current_user.id not in allowed_ids):
+            flash('You do not have permission to view this recipe.', 'error')
+            return redirect(url_for('homepage'))
+
     recipe.view_count += 1
     db.session.commit()
     
@@ -340,6 +359,31 @@ def view_recipe():
 @app.route('/api/recipes/<int:recipe_id>')
 def get_recipe(recipe_id):
     recipe = Recipe.query.get_or_404(recipe_id)
+    # Privacy logic for API
+    if recipe.access_level == 1:
+        if not current_user.is_authenticated or current_user.id != recipe.user_id:
+            return jsonify({'error': 'You do not have permission to view this recipe.'}), 403
+    elif recipe.access_level == 2:
+        allowed_ids = []
+        try:
+            import ast
+            allowed_ids = ast.literal_eval(recipe.shared_with_ids) if recipe.shared_with_ids else []
+        except Exception:
+            allowed_ids = []
+        if not current_user.is_authenticated or (current_user.id != recipe.user_id and current_user.id not in allowed_ids):
+            return jsonify({'error': 'You do not have permission to view this recipe.'}), 403
+    author = recipe.user
+    # Try to get profile image
+    profile_pic_url = None
+    if hasattr(author, "profile_image") and author.profile_image and author.profile_image.image_url:
+        profile_pic_url = author.profile_image.image_url
+    else:
+        profile_pic_url = "/images/profile_placeholder.jpg"
+
+    def get_user_profile_pic(user):
+        if hasattr(user, "profile_image") and user.profile_image and user.profile_image.image_url:
+            return user.profile_image.image_url
+        return "/images/profile_placeholder.jpg"
 
     return jsonify({
         'id': recipe.id,
@@ -360,12 +404,64 @@ def get_recipe(recipe_id):
         'reviews': [
             {
                 'rating': rating.rating,
-                'comment': rating.review or ''
+                'comment': rating.review or '',
+                'created_at': rating.created_at.strftime('%Y-%m-%d'),
+                'user': {
+                    'id': rating.user.id,
+                    'display_name': rating.user.display_name,
+                    'profile_pic_url': get_user_profile_pic(rating.user)
+                }
             }
             for rating in recipe.ratings
-        ]
+        ],
+        'author': {
+            'id': author.id,
+            'name': author.display_name,
+            'profile_pic_url': profile_pic_url
+        },
+        'current_user_id': (current_user.id if current_user.is_authenticated else None)
     })
 
+@app.route('/api/recipes/<int:recipe_id>/reviews', methods=['POST'])
+@login_required
+def add_review(recipe_id):
+    data = request.get_json()
+    rating = int(data.get('rating', 0))
+    comment = data.get('comment', '').strip()
+    if not (1 <= rating <= 5):
+        return jsonify({'error': 'Invalid rating'}), 400
+    if not comment:
+        return jsonify({'error': 'Review text required'}), 400
+
+    # Prevent duplicate review by the same user for the same recipe
+    existing = Rating.query.filter_by(recipe_id=recipe_id, user_id=current_user.id).first()
+    if existing:
+        return jsonify({'error': 'You have already reviewed this recipe.'}), 400
+
+    review = Rating(
+        recipe_id=recipe_id,
+        user_id=current_user.id,
+        rating=rating,
+        review=comment,
+        created_at=datetime.utcnow(),
+        updated_at=datetime.utcnow()
+    )
+    db.session.add(review)
+    db.session.commit()
+
+    # Return the new review in the same format as your GET endpoint
+    user = current_user
+    profile_pic_url = user.profile_image.image_url if hasattr(user, "profile_image") and user.profile_image and user.profile_image.image_url else "/images/profile_placeholder.jpg"
+    return jsonify({
+        'rating': review.rating,
+        'comment': review.review,
+        'created_at': review.created_at.strftime('%Y-%m-%d'),
+        'user': {
+            'id': user.id,
+            'display_name': user.display_name,
+            'profile_pic_url': profile_pic_url
+        }
+    }), 201
 
 @app.route('/profile')
 @login_required
@@ -507,3 +603,4 @@ def search():
 #Run Server
 if __name__ == '__main__':
     app.run(debug=True)
+

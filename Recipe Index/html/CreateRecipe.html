@@ -10,6 +10,9 @@
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
   <script>window.ingredientUnits = {{ ingredient_units|tojson }};</script>
+  {% if current_user.is_authenticated %}
+  <script>window.currentUserDisplayName = {{ current_user.display_name|tojson }};</script>
+  {% endif %}
 </head>
 
 <body class="page-body">
@@ -44,6 +47,7 @@
           name="description"
           rows="2"
           placeholder="Briefly describe the amazing dish!"
+          maxlength="250"
         ></textarea>
       </div>
 
