@@ -100,7 +100,7 @@ li {
   border-radius: 50%;
   object-fit: cover;
   margin-right: 4px;
-  border: 1px solid #ccc;
+  border: 2px solid #10b981;
 }
 
 .review-username {
@@ -146,6 +146,7 @@ li {
   background: #fff;
   z-index: 2;
   padding-bottom: 38px;
+  font-family: 'Inter', sans-serif;
 }
 
 .review-form-bottom {
