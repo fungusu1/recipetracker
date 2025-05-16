@@ -354,3 +354,9 @@
 .create-recipe-btn:hover {
     background-color: #059669;
 }
+
+.views-count {
+  color: #888;
+  font-weight: normal;
+  margin-left: 0.5em;
+}
