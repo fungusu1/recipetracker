@@ -31,7 +31,7 @@ function displayRecipe(recipe) {
 
   // Author and Views Row
   const authorViewsRow = document.getElementById('authorViewsRow');
-  authorViewsRow.innerHTML = ''; // Clear previous
+  authorViewsRow.innerHTML = '';
 
   if (recipe.author) {
     // Create author link
@@ -150,7 +150,6 @@ function displayRecipe(recipe) {
           star.textContent = '★';
           starsDiv.appendChild(star);
         }
-        // Header and stars in a row
         const headerStarsRow = document.createElement('div');
         headerStarsRow.className = 'review-header-stars-row';
         headerStarsRow.appendChild(headerDiv);
@@ -187,7 +186,7 @@ function displayRecipe(recipe) {
   displayRecipe(recipe);
 })();
 
-// --- Review Form Stars Logic ---
+// Review Form Stars Logic
 const reviewStarsDiv = document.getElementById('reviewStars');
 let selectedRating = 0;
 
@@ -198,7 +197,6 @@ function renderReviewStars() {
     star.className = 'review-star' + (i <= selectedRating ? ' filled' : '');
     star.textContent = '★';
     star.dataset.value = i;
-    // Click to select
     star.addEventListener('click', () => {
       selectedRating = i;
       renderReviewStars();
@@ -206,11 +204,9 @@ function renderReviewStars() {
     reviewStarsDiv.appendChild(star);
   }
 }
-
-// Initial render
 renderReviewStars();
 
-// --- Limit textarea to fit the box visually (optional, since maxlength is set) ---
+// Limit textarea to fit the box visually
 const reviewText = document.getElementById('reviewText');
 reviewText.addEventListener('input', function() {
   if (this.value.length > 500) {
@@ -218,7 +214,7 @@ reviewText.addEventListener('input', function() {
   }
 });
 
-// --- Post Button (no backend yet) ---
+// Post Button (no backend yet)
 document.getElementById('postReviewBtn').addEventListener('click', async function() {
   if (selectedRating === 0) {
     showFlashMessage('Please select a star rating.', 'error');
@@ -245,14 +241,10 @@ document.getElementById('postReviewBtn').addEventListener('click', async functio
     return;
   }
 
-  // Optionally, add the new review to the UI without reload:
   const newReview = await response.json();
-  // You can prepend or append this to your reviewsContainer, or reload the recipe:
-  // For now, reload the page to show the new review:
   window.location.reload();
 });
 
-// Add this helper at the top or after DOMContentLoaded
 function showFlashMessage(msg, type = 'error') {
   let flash = document.getElementById('flash-message');
   if (!flash) {
