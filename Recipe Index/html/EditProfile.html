@@ -16,7 +16,7 @@
     <form method="POST" enctype="multipart/form-data" class="edit-profile-form">
       <div>
         <label for="profile_description">Profile Description:</label><br>
-        <textarea id="profile_description" name="profile_description" rows="4" cols="50">{{ user.profile_description }}</textarea>
+        <textarea id="profile_description" name="profile_description" rows="4" cols="50" maxlength="265">{{ user.profile_description }}</textarea>
       </div>
       <div class="edit-profile-pic-row">
         <div class="edit-profile-pic-col">

@@ -20,7 +20,7 @@
 .profile-left {
     display: flex;
     flex-direction: column;
-    align-items: start;
+    align-items: center;
     margin-right: 20px;
 }
 
@@ -39,8 +39,15 @@
     display: flex;
     flex-direction: column;
     max-height: 180px;
-    max-width: 300px;
+    max-width: 500px;
     overflow: hidden;
+    overflow-wrap:anywhere;
+}
+
+.profile-bio {
+    max-height: 180px;    /* or whatever limit you want */
+    overflow-y: auto;     /* shows scrollbar when needed */
+    padding-right: 4px;   /* keeps text clear of scrollbar */
 }
 
 .avg-rating {
@@ -242,7 +249,7 @@
 
 .edit-profile-btn {
   margin-top: 10px;
-  background-color: #e0e0e0;
+  background-color: #ebebeb;
   color: #222;
   padding: 0.5rem 1rem;
   border: none;
