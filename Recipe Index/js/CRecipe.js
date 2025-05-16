@@ -126,12 +126,11 @@ async function promptNewIngredient() {
     const data = await resp.json();
 
     if (!resp.ok) {
-      // show the API's error message in a simple popup
       alert(data.error || "Could not add ingredient");
       return;
     }
 
-    // success: add to datalist
+
     const dl  = document.getElementById('ingredient-list');
     const opt = document.createElement('option');
     opt.value = data.name;
@@ -255,7 +254,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // Show/hide shared section
+
   document.querySelectorAll('input[name="privacy"]').forEach(radio => {
     radio.addEventListener('change', function() {
       document.getElementById('shared-with-section').style.display =
@@ -263,8 +262,51 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
-  // Add shared user
+  const checkedPrivacy = document.querySelector('input[name="privacy"]:checked');
+  if (checkedPrivacy) {
+    document.getElementById('shared-with-section').style.display =
+      checkedPrivacy.value === 'shared' ? 'block' : 'none';
+  }
+
+
+  const instrContainer = document.getElementById('instructions-container');
+  if (instrContainer) {
+    const btns = instrContainer.querySelectorAll('.remove-btn');
+    btns.forEach((btn, idx) => {
+      if (idx > 0) {
+        btn.classList.remove('hidden');
+        btn.addEventListener('click', function() {
+          removeInstructionField(btn);
+        });
+      }
+    });
+  }
+
+  // SHARED USERS LOGIC
   const sharedUsers = [];
+  const sharedList = document.getElementById('shared-users-list');
+  const hiddenInput = document.getElementById('shared-user-ids');
+  if (sharedList) {
+    sharedList.querySelectorAll('li[data-user-id]').forEach(li => {
+      const id = parseInt(li.getAttribute('data-user-id'));
+      const name = li.querySelector('.shared-user-name').textContent.trim();
+      sharedUsers.push({id, display_name: name});
+    });
+    if (hiddenInput) hiddenInput.value = sharedUsers.map(u => u.id).join(',');
+    sharedList.querySelectorAll('.remove-btn').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        const li = btn.closest('li');
+        const id = parseInt(li.getAttribute('data-user-id'));
+        const idx = sharedUsers.findIndex(u => u.id === id);
+        if (idx !== -1) sharedUsers.splice(idx, 1);
+        li.remove();
+        if (hiddenInput) hiddenInput.value = sharedUsers.map(u => u.id).join(',');
+      });
+    });
+  }
+
+  // Add shared user
   document.getElementById('add-shared-user-btn').addEventListener('click', async function() {
     const input = document.getElementById('shared-user-input');
     const errorDiv = document.getElementById('shared-user-error');
@@ -300,11 +342,13 @@ document.addEventListener('DOMContentLoaded', function() {
       sharedUsers.push({id: data.id, display_name: data.display_name});
       // Update list
       const li = document.createElement('li');
-      li.textContent = data.display_name;
+      li.setAttribute('data-user-id', data.id);
+      li.textContent = data.display_name + ' ';
 
       // Add delete button
       const delBtn = document.createElement('button');
       delBtn.textContent = '✕';
+      delBtn.className = 'remove-btn';
       delBtn.style.marginLeft = '0.5em';
       delBtn.style.background = '#ef4444';
       delBtn.style.color = 'white';
@@ -313,12 +357,12 @@ document.addEventListener('DOMContentLoaded', function() {
       delBtn.style.cursor = 'pointer';
       delBtn.style.fontWeight = 'bold';
       delBtn.style.fontSize = '1em';
-      delBtn.onclick = function() {
+      delBtn.onclick = function(e) {
+        e.preventDefault();
         const idx = sharedUsers.findIndex(u => u.id === data.id);
         if (idx !== -1) sharedUsers.splice(idx, 1);
         li.remove();
-        // Update hidden input
-        hiddenInput.value = sharedUsers.map(u => u.id).join(',');
+        if (hiddenInput) hiddenInput.value = sharedUsers.map(u => u.id).join(',');
       };
 
       li.appendChild(delBtn);

@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Edit Recipe</title>
+  <link rel="stylesheet" href="../css/CRecipe.css">
+  <link rel="stylesheet" href="../css/header.css">
+  <script src="../js/CRecipe.js" defer></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+  <script>window.ingredientUnits = {{ ingredient_units|tojson }};</script>
+  {% if current_user.is_authenticated %}
+  <script>window.currentUserDisplayName = {{ current_user.display_name|tojson }};</script>
+  {% endif %}
+</head>
+
+<body class="page-body">
+  <!-- Header -->
+  {% include 'Header.html' %}
+
+  <!-- Recipe Container -->
+  <div class="container">
+    <h1>Edit Recipe!</h1>
+
+    <form id="recipeForm" action="/edit/{{ recipe.id }}" method="POST" enctype="multipart/form-data" class="form-wrapper">
+      <!-- Title -->
+      <div>
+        <label for="title">Title:</label>
+        <input
+          type="text"
+          id="title"
+          name="title"
+          required
+          placeholder="e.g. Spaghetti Carbonara"
+          maxlength="100"
+          value="{{ recipe.name }}"
+        >
+      </div>
+
+      <!-- Description -->
+      <div>
+        <label for="description">Short Description:</label>
+        <textarea
+          id="description"
+          name="description"
+          rows="2"
+          placeholder="Briefly describe the amazing dish!"
+          maxlength="250"
+        >{{ recipe.description }}</textarea>
+      </div>
+
+      <!-- Cook Time & Servings -->
+      <div class="flex-row">
+        <div class="flex-half">
+          <label for="cook_time">Cook Time:</label>
+          <input
+            type="number"
+            id="cook_time"
+            name="cook_time"
+            required
+            placeholder="Minutes"
+            value="{{ recipe.cook_time }}"
+            onkeydown="return event.key >= '0' && event.key <= '9' || event.key === 'Backspace' || event.key === 'ArrowLeft' || event.key === 'ArrowRight'"
+          >
+        </div>
+        <div class="flex-half">
+          <label for="servings">Quantity / Servings:</label>
+          <input
+            type="number"
+            id="servings"
+            name="servings"
+            required
+            placeholder="e.g. 4"
+            value="{{ recipe.servings }}"
+            onkeydown="return event.key >= '0' && event.key <= '9' || event.key === 'Backspace' || event.key === 'ArrowLeft' || event.key === 'ArrowRight'"
+          >
+        </div>
+      </div>
+
+      <!-- Ingredients -->
+      <div>
+        <label>Ingredients:</label>
+        <button
+          type="button"
+          class="add-new-type-btn"
+          onclick="openIngredientOverlay()"
+          title="Add a new ingredient type">
+          Can't find your Ingredient?
+        </button>
+
+        <div id="ingredients-container">
+          {% for ri in recipe.ingredients %}
+          <div class="ingredient-item flex-row">
+            <div class="flex-half">
+              <select name="ingredient_name" class="ingredient-select textarea-wrapper" required>
+                <option value="">Select ingredient</option>
+                {% for ingr in base_ingredients %}
+                  <option value="{{ ingr.name }}" {% if ingr.id == ri.ingredient_id %}selected{% endif %}>{{ ingr.name }}</option>
+                {% endfor %}
+              </select>
+              <span class="unit-label"></span>
+            </div>
+            <div class="flex-half quantity-group">
+              <input
+                type="number"
+                name="quantity"
+                required
+                placeholder="e.g. 2"
+                class="quantity-input"
+                step="any"
+                min="0"
+                value="{{ ri.quantity }}"
+              >
+              <span class="unit-label-inside"></span>
+              <span class="unit-label-outside hidden"></span>
+            </div>
+            <button
+              type="button"
+              class="remove-btn {% if not loop.first %}visible{% else %}hidden{% endif %}"
+              onclick="removeIngredientField(this)">
+              ✕
+            </button>
+          </div>
+          {% endfor %}
+        </div>
+
+        <div class="mt-2">
+          <button
+            type="button"
+            class="add-btn"
+            onclick="addIngredientField()">
+            ＋ Add Ingredient
+          </button>
+        </div>
+      </div>
+
+      <!-- Instructions -->
+      <div>
+        <label>Instructions:</label>
+        <div id="instructions-container">
+          {% for instr in recipe.instructions|sort(attribute='step_number') %}
+          <div class="instruction-item">
+            <div class="item-label">{{ loop.index }}.</div>
+            <textarea
+              name="instructions"
+              required
+              placeholder="e.g. Mix all ingredients"
+              rows="1"
+              maxlength="300"
+              class="textarea-wrapper"
+            >{{ instr.content }}</textarea>
+            <button type="button" class="remove-btn{% if loop.first %} hidden{% endif %}">✕</button>
+          </div>
+          {% endfor %}
+        </div>
+        <div class="mt-2">
+          <button
+            type="button"
+            onclick="addField('instructions-container', 'instructions')"
+            class="add-btn">
+            ＋ Add Step
+          </button>
+        </div>
+      </div>
+      <div style="display: flex; align-items: flex-start; gap: 2rem;">
+        <div style="flex: 1;">
+          <label for="images">Recipe's Photo:</label>
+          <div id="images-container">
+            <input
+              type="file"
+              id="images"
+              name="images"
+              accept="image/*"
+            >
+            <small class="image-note">Only one image allowed</small>
+          </div>
+        </div>
+        <div style="flex: 1;">
+          <label>Current Image:</label><br>
+          {% if recipe.images and recipe.images|length > 0 %}
+            <img src="{{ recipe.images[0].image_url }}" alt="Current Recipe Image" style="max-width: 200px; max-height: 200px; border-radius: 10px; border: 2px solid #bbb;">
+          {% else %}
+            <img src="{{ url_for('images', filename='no-image-available-icon-vector.jpg') }}" alt="No Image" style="max-width: 200px; max-height: 200px; border-radius: 10px; border: 2px solid #bbb;">
+          {% endif %}
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Privacy Setting:</label>
+        <div class="privacy-options">
+          <label>
+            <input type="radio" name="privacy" value="public" {% if recipe.access_level == 0 %}checked{% endif %}>
+            Public
+          </label>
+          <label>
+            <input type="radio" name="privacy" value="private" {% if recipe.access_level == 1 %}checked{% endif %}>
+            Private
+          </label>
+          <label>
+            <input type="radio" name="privacy" value="shared" {% if recipe.access_level == 2 %}checked{% endif %}>
+            Shared
+          </label>
+        </div>
+      </div>
+      <div id="shared-with-section" {% if recipe.access_level != 2 %}style="display:none;"{% endif %}>
+        <label>Who do you want to share this with?</label>
+        <div id="shared-with-flex-row">
+          <input type="text" id="shared-user-input" placeholder="Enter display name">
+          <button type="button" id="add-shared-user-btn">Add</button>
+        </div>
+        <div id="shared-user-error"></div>
+        <div id="shared-user-success">User is found!</div>
+        <ul id="shared-users-list">
+          {% if shared_users %}
+            {% for user in shared_users %}
+              <li data-user-id="{{ user.id }}"><span class="shared-user-name">{{ user.display_name }}</span><button type="button" class="remove-btn">✕</button></li>
+            {% endfor %}
+          {% endif %}
+        </ul>
+      </div>
+      <input type="hidden" name="shared_user_ids" id="shared-user-ids" value="{% if recipe.access_level == 2 and recipe.shared_with_ids %}{{ recipe.shared_with_ids|replace('[','')|replace(']','')|replace(' ','') }}{% endif %}">
+      <!-- Submit -->
+      <div class="text-center">
+        <button type="submit" class="submit-btn">Confirm Edit</button>
+      </div>
+    </form>
+    <!-- Overlay-->
+    <div id="ingredient-overlay" class="overlay hidden">
+      <div class="overlay-content">
+        <h2>Add a New Ingredient</h2>
+        <label for="new-ingredient-name">Enter the "new" ingredient name:</label>
+        <input type="text" id="new-ingredient-name" placeholder="e.g. Saffron">
+        <label for="new-ingredient-unit">What is the Unit of Measurement?</label>
+        <input type="text" id="new-ingredient-unit" placeholder="e.g. g, tsp">
+        <div class="overlay-actions">
+          <button type="button" onclick="submitNewIngredient()">Add Ingredient</button>
+          <button type="button" onclick="closeIngredientOverlay()">Cancel</button>
+        </div>
+        <div id="ingredient-overlay-error"></div>
+      </div>
+    </div>
+  </div>
+</body>
+</html> 

@@ -93,17 +93,22 @@ textarea {
 
 .remove-btn {
   position: absolute;
-  top: 0.5rem;
-  right: 0.25rem;
-  color: #ef4444;
-  background: none;
-  border: none;
+  top: 50%;
+  right: 0.25em;
+  transform: translateY(-50%);
+  color: #ef4444 !important;
+  background: none !important;
+  border: none !important;
   font-size: 1.25rem;
   cursor: pointer;
+  padding: 0;
+  box-shadow: none;
 }
 
 .remove-btn:hover {
-  color: #b91c1c;
+  color: #b91c1c !important;
+  background: none !important;
+  border: none !important;
 }
 
 .hidden {
@@ -295,6 +300,8 @@ input[type="file"]::file-selector-button:hover {
   top: 50%;
   right: 0.25em;
   transform: translateY(-50%);
+  background: none !important;
+  border: none !important;
 }
 
 input[type="number"]::-webkit-inner-spin-button,
@@ -460,4 +467,35 @@ input[type="number"]::-webkit-outer-spin-button {
 #shared-user-error {
   color: red;
   margin-top: 0.5em;
+}
+
+#shared-users-list .remove-btn {
+  position: static;
+  margin-left: 0.15em;
+  margin-right: 0;
+  font-size: 1.1rem;
+  color: #ef4444 !important;
+  background: none !important;
+  border: none !important;
+  cursor: pointer;
+  vertical-align: middle;
+  padding: 0 0.1em;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  transform: none;
+}
+#shared-users-list .remove-btn:hover {
+  color: #b91c1c !important;
+  background: none !important;
+  border: none !important;
+}
+
+#shared-users-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+}
+.shared-user-name {
+  flex: 0 1 auto;
 }
