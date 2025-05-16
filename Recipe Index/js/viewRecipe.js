@@ -23,6 +23,14 @@ function displayRecipe(recipe) {
     if (reviewFormContainer) reviewFormContainer.style.display = 'none';
   }
 
+  // Hide edit button if not the owner
+  const editBtn = document.getElementById('editRecipeBtn');
+  if (!recipe.current_user_id || !recipe.author || recipe.current_user_id !== recipe.author.id) {
+    if (editBtn) editBtn.style.display = 'none';
+  } else {
+    if (editBtn) editBtn.style.display = '';
+  }
+  
   document.title = recipe.title;
   document.getElementById('title').textContent = recipe.title;
   document.getElementById('description').textContent = recipe.description;
@@ -36,7 +44,7 @@ function displayRecipe(recipe) {
   if (recipe.author) {
     // Create author link
     const authorLink = document.createElement('a');
-    authorLink.href = `/profile?id=${recipe.author.id}`;
+    authorLink.href = `/profile/${recipe.author.id}`;
     authorLink.className = 'author-link';
 
     // Profile picture
