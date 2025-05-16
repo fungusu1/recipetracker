@@ -582,17 +582,33 @@ def signup():
 def search():
     query = request.args.get('q', '').strip()
 
-    recipes = Recipe.query \
-        .filter(Recipe.name.ilike(f'%{query}%')) \
-        .order_by(Recipe.cook_time.asc()) \
-        .all()
-
-    # build a mapping of recipe.id → image_url (falling back to "no image")
+    # build a single filter for public (0) or shared-with-you (2 + your ID)
+    access_filter = Recipe.access_level == 0
+    if current_user.is_authenticated:
+        access_filter = (
+            access_filter
+            | (
+                (Recipe.access_level == 2)
+                & Recipe.shared_with_ids.ilike(f'%"{current_user.id}"%')
+            )
+        )
+    recipes = (
+        Recipe.query
+              .filter(
+                  Recipe.name.ilike(f'%{query}%'),
+                  access_filter
+              )
+              .order_by(Recipe.cook_time.asc())
+              .all()
+    )
     recipe_images = {
-        r.id: (r.images[0].image_url if r.images else url_for('images', filename='no-image-available-icon-vector.jpg'))
+        r.id: (
+            r.images[0].image_url
+            if r.images
+            else url_for('images', filename='no-image-available-icon-vector.jpg')
+        )
         for r in recipes
     }
-
     return render_template(
         'SearchResults.html',
         query=query,
