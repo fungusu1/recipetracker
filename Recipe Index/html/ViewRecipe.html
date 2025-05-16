@@ -15,30 +15,42 @@
 
   <!-- Recipe Content -->
   <div class="container">
+    <button id="editRecipeBtn" class="edit-button">Edit</button>
     <h1 id="title"></h1>
+    <div id="authorViewsRow" class="author-views-row"></div>
+    
+    <h3 id="shortDescTitle">Short Description:</h3>
     <p id="description"></p>
 
-    <p><strong>Cook Time:</strong> <span id="cookTime"></span> minutes</p>
-    <p><strong>Servings:</strong> <span id="servings"></span></p>
-    <p><strong>Views:</strong> <span id="views"></span></p>
-
-    <h2>Ingredients</h2>
+    <div class="info-row">
+      <span><strong>Cook Time:</strong> <span id="cookTime"></span> minutes</span>
+      <span class="info-separator">||</span>
+      <span><strong>Servings:</strong> <span id="servings"></span></span>
+    </div>
+    
+    <h2>Ingredients:</h2>
     <ul id="ingredients"></ul>
 
-    <h2>Instructions</h2>
+    <h2>Instructions:</h2>
     <ol id="instructions"></ol>
 
-    <div id="imageContainer"></div>
+    <div id="imageContainer" class="center-image"></div>
 
-    <p><strong>Privacy:</strong> <span id="privacy"></span></p>
+    <h2>Reviews:</h2>
+    <div class="review-form-container">
+      <div class="review-form-box">
+        <textarea id="reviewText" maxlength="250" placeholder="Leave the recipe a review!" rows="4"></textarea>
+        <div class="review-form-bottom">
+          <div class="review-stars" id="reviewStars">
+          </div>
+          <button id="postReviewBtn" class="print-button review-post-btn">Post</button>
+        </div>
+      </div>
+    </div>
 
-    <h2>Reviews</h2>
     <div id="reviewsContainer"></div>
-
-    <button class="print-button" onclick="window.print()">Print Recipe</button>
   </div>
 
   <script src="../js/viewRecipe.js"></script>
 </body>
 </html>
-
