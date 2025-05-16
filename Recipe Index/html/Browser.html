@@ -92,36 +92,24 @@
     </form>
     
     <!-- Recipes -->
-    <div class="recipe-listing">
-      {% for recipe in recipes %}
-      <div class="recipe-preview" data-recipe-id="{{ recipe.id }}" onclick="location.href='/recipe?id={{ recipe.id }}'">
-        <img class="browser-card-img"
-             src="{{ recipe.images[0].image_url if recipe.images else url_for('images', filename='no-image-available-icon-vector.jpg') }}"
-             alt="{{ recipe.name }}"
-             onerror="this.src='{{ url_for('images', filename='no-image-available-icon-vector.jpg') }}'">
-        <h3>{{ recipe.name }}</h3>
-        <p>{{ recipe.description }}</p>
-        <div class="recipe-meta">
-          <span><strong>Cook Time:</strong> {{ recipe.cook_time }} mins</span>
-          <span class="meta-divider">|</span>
-          <span><strong>Quantity:</strong> Serves {{ recipe.servings }}</span>
-        </div>
-        {% if selected_ingredients and selected_ingredients|length > 0 %}
-          {% set missing = recipe_missing_amounts.get(recipe.id, []) %}
-          {% if missing and missing|length > 0 %}
-            <div class="missing-ingredients-list">
-              <div class="missing-header">Missing:</div>
-              {% for miss in missing %}
-                <div class="missing-ingredient">{{ miss }}</div>
-              {% endfor %}
-            </div>
-          {% endif %}
-        {% endif %}
-      </div>
-      {% else %}
-      <p>No recipes found.</p>
-      {% endfor %}
+    <div class="recipe-listing" id="recipe-listing">
+      {% include 'RecipeCards.html' %}
     </div>
+    {% if show_more %}
+      <form id="show-more-form" method="get" action="/browse">
+        {% for ingredient in selected_ingredients %}
+          <input type="hidden" name="ingredient[]" value="{{ ingredient }}">
+        {% endfor %}
+        {% for serving in selected_servings %}
+          <input type="hidden" name="servings[]" value="{{ serving }}">
+        {% endfor %}
+        <input type="hidden" name="sort" value="{{ selected_sort }}">
+        <input type="hidden" name="page" value="{{ next_page }}">
+        <div class="show-more-btn-wrapper">
+          <button id="show-more-btn" type="button" class="show-more-btn">Show More</button>
+        </div>
+      </form>
+    {% endif %}
   </main>
 </body>
 </html>

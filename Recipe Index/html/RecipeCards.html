@@ -1,0 +1,61 @@
+{% for recipe in recipes %}
+<div class="recipe-preview" data-recipe-id="{{ recipe.id }}" onclick="location.href='/recipe?id={{ recipe.id }}'">
+  <img class="browser-card-img"
+       src="{{ recipe_images[recipe.id] if recipe_images else url_for('images', filename='no-image-available-icon-vector.jpg') }}"
+       alt="{{ recipe.name }}"
+       onerror="this.src='{{ url_for('images', filename='no-image-available-icon-vector.jpg') }}'">
+  <h3>{{ recipe.name }}</h3>
+  <p class="recipe-desc">{{ recipe.description }}</p>
+  <div class="recipe-meta recipe-meta-center">
+    <div class="meta-label-row">
+      <span><strong>Cook Time:</strong></span>
+      <span class="meta-divider">|</span>
+      <span><strong>Quantity:</strong></span>
+    </div>
+    <div class="meta-value-row">
+      <span>{{ recipe.cook_time }} mins</span>
+      <span class="meta-divider"> </span>
+      <span>Serves {{ recipe.servings }}</span>
+    </div>
+  </div>
+  <div class="recipe-rating-row">
+    <span class="recipe-rating-label">Rating:</span>
+    {% set avg = recipe.average_rating|default(0)|float %}
+    {% set avg_rounded = (avg * 4)|round|float / 4 %}
+    {% set rating_color = 'gray' %}
+    {% if avg_rounded == 0 %}
+      {% set rating_color = 'gray-rating' %}
+    {% elif avg_rounded >= 3.5 %}
+      {% set rating_color = 'green-rating' %}
+    {% elif avg_rounded >= 2 %}
+      {% set rating_color = 'yellow-rating' %}
+    {% elif avg_rounded > 0 %}
+      {% set rating_color = 'red-rating' %}
+    {% endif %}
+    <span class="recipe-rating-number {{ rating_color }}">{{ '%.2f' % avg_rounded }}</span>
+    <span class="meta-divider">|</span>
+    <span class="recipe-views">Views: {{ recipe.view_count }}</span>
+  </div>
+  {% set missing_info = recipe_missing_amounts.get(recipe.id, {'list': [], 'more': False}) %}
+  {% set missing = missing_info['list'] %}
+  {% set show_missing = false %}
+  {% if selected_ingredients and selected_ingredients[0] and selected_ingredients[0]|trim != '' %}
+    {% set show_missing = true %}
+  {% endif %}
+  {% if show_missing and missing and missing|length > 0 %}
+    <div class="missing-ingredients-list">
+      <div class="missing-header">Missing:</div>
+      {% for miss in missing %}
+        <div class="missing-ingredient{% if miss.partial %} missing-ingredient-partial{% endif %}">
+          {{ miss.name }} ({{ miss.amount }})
+        </div>
+      {% endfor %}
+      {% if missing_info['more'] %}
+        <div class="missing-more">+More</div>
+      {% endif %}
+    </div>
+  {% endif %}
+</div>
+{% else %}
+<p>No recipes found.</p>
+{% endfor %} 
