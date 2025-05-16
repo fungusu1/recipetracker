@@ -83,31 +83,42 @@
       </div>
       
       <div class="browser-grid" id="profileRecipeGrid">
-        {% for recipe in recipes %}
-          <a href="/recipe?id={{ recipe.id }}" style="text-decoration: none; color: inherit;" class="profile-recipe-link{% if loop.index > 3 %} hidden-card{% endif %}">
-            <div class="browser-card">
-              <div class="browser-card-img-container">
-                <img class="browser-card-img"
-                     src="{{ recipe.images[0].image_url if recipe.images else url_for('images', filename='no-image-available-icon-vector.jpg') }}"
-                     alt="{{ recipe.name }}"
-                     onerror="this.src='{{ url_for('images', filename='no-image-available-icon-vector.jpg')}}'">
-              </div>
-              <div class="browser-card-content">
-                <h2 class="browser-card-title">{{ recipe.name }}</h2>
-                <p class="browser-card-desc">
-                  {{ recipe.description }}
-                </p>
-                <div class="browser-card-meta">
-                  <span><b>Cook Time:</b> {{ recipe.cook_time }} mins</span> |
-                  <span><b>Quantity:</b> Serves {{ recipe.servings }}</span>
+        {% if recipes %}
+          {% for recipe in recipes %}
+            <a href="/recipe?id={{ recipe.id }}" style="text-decoration: none; color: inherit;" class="profile-recipe-link{% if loop.index > 3 %} hidden-card{% endif %}">
+              <div class="browser-card">
+                <div class="browser-card-img-container">
+                  <img class="browser-card-img"
+                       src="{{ recipe.images[0].image_url if recipe.images else url_for('images', filename='no-image-available-icon-vector.jpg') }}"
+                       alt="{{ recipe.name }}"
+                       onerror="this.src='{{ url_for('images', filename='no-image-available-icon-vector.jpg')}}'">
                 </div>
-                <div class="browser-card-rating">
-                  Rating: {{ recipe.average_rating|default(0)|float|round(1) }} / 5
+                <div class="browser-card-content">
+                  <h2 class="browser-card-title">{{ recipe.name }}</h2>
+                  <p class="browser-card-desc">
+                    {{ recipe.description }}
+                  </p>
+                  <div class="browser-card-meta">
+                    <span><b>Cook Time:</b> {{ recipe.cook_time }} mins</span> |
+                    <span><b>Quantity:</b> Serves {{ recipe.servings }}</span>
+                  </div>
+                  <div class="browser-card-rating">
+                    Rating: {{ recipe.average_rating|default(0)|float|round(1) }} / 5<span class="views-count">| Views: {{ recipe.view_count }}</span>
+                  </div>
                 </div>
               </div>
-            </div>
-          </a>
-        {% endfor %}
+            </a>
+          {% endfor %}
+        {% else %}
+          <div class="no-recipes-message">
+            {% if current_user.is_authenticated and current_user.id == user.id %}
+              <p>You haven't created any recipes yet!</p>
+              <a href="/create" class="create-recipe-btn">Create Your First Recipe</a>
+            {% else %}
+              <p>This user hasn't shared any recipes yet.</p>
+            {% endif %}
+          </div>
+        {% endif %}
       </div>
       {% if recipes|length > 3 %}
       <button class="expand-btn" id="expandBtn">Show more</button>
@@ -140,3 +151,4 @@
   </div>
 </body>
 </html>
+

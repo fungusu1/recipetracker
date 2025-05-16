@@ -673,14 +673,35 @@ def public_profile(user_id):
     user = User.query.get_or_404(user_id)
     sort = request.args.get('sort', 'title')
     query = Recipe.query.filter_by(user_id=user.id)
+    
+    # Filter recipes based on privacy settings
+    if current_user.is_authenticated and current_user.id == user.id:
+        # Show all recipes to the owner
+        recipes = query.all()
+    else:
+        # For other users, only show public recipes or shared recipes
+        recipes = []
+        for recipe in query.all():
+            if recipe.access_level == 0:  # Public
+                recipes.append(recipe)
+            elif recipe.access_level == 2 and current_user.is_authenticated:  # Shared
+                try:
+                    shared_ids = eval(recipe.shared_with_ids) if recipe.shared_with_ids else []
+                    if current_user.id in shared_ids:
+                        recipes.append(recipe)
+                except:
+                    pass
+    
+    # Apply sorting
     if sort == 'rating':
-        recipes = sorted(query.all(), key=lambda r: r.average_rating, reverse=True)
+        recipes = sorted(recipes, key=lambda r: r.average_rating, reverse=True)
     elif sort == 'cook-time':
-        recipes = query.order_by(Recipe.cook_time.asc()).all()
+        recipes = sorted(recipes, key=lambda r: r.cook_time)
     elif sort == 'quantity':
-        recipes = query.order_by(Recipe.servings.desc()).all()
-    else:  # 'title' or default
-        recipes = query.order_by(Recipe.name.asc()).all()
+        recipes = sorted(recipes, key=lambda r: r.servings, reverse=True)
+    else: #alphabetical
+        recipes = sorted(recipes, key=lambda r: r.name)
+        
     return render_template('ProfilePage.html', user=user, recipes=recipes, selected_sort=sort)
 
 @app.route('/profile/edit', methods=['GET', 'POST'])

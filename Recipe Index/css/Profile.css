@@ -324,3 +324,39 @@
   margin-top: 0.25em;
   text-align: center;
 }
+
+.no-recipes-message {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 2rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    margin: 1rem 0;
+}
+
+.no-recipes-message p {
+    font-size: 1.1rem;
+    color: #666;
+    margin-bottom: 1rem;
+}
+
+.create-recipe-btn {
+    display: inline-block;
+    background-color: #10b981;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.375rem;
+    text-decoration: none;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+
+.create-recipe-btn:hover {
+    background-color: #059669;
+}
+
+.views-count {
+  color: #888;
+  font-weight: normal;
+  margin-left: 0.5em;
+}
