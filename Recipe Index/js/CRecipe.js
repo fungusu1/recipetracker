@@ -280,6 +280,11 @@ document.addEventListener('DOMContentLoaded', function() {
       return;
     }
 
+    // Prevent adding yourself
+    if (window.currentUserDisplayName && name.toLowerCase() === window.currentUserDisplayName.toLowerCase()) {
+      errorDiv.textContent = 'You cannot add yourself.';
+      return;
+    }
 
     try {
       const resp = await fetch('/api/find_user', {
