@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Edit Recipe</title>
+  <link rel="stylesheet" href="../css/CRecipe.css">
+  <link rel="stylesheet" href="../css/header.css">
+  <script src="../js/EditRecipe.js" defer></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+  <script>window.ingredientUnits = {{ ingredient_units|tojson }};</script>
+</head>
+
+<body class="page-body">
+  <!-- Header -->
+  {% include 'Header.html' %}
+
+
+  <!-- Recipe Container -->
+  <div class="container">
+    <h1>Edit Recipe!</h1>
+
+    <form id="recipeForm" action="/edit/{{ recipe.id }}" method="POST" enctype="multipart/form-data" class="form-wrapper">
+      <label for="title">Recipe Title: </label>
+      <input type="text" id="title" name="title" required maxlength="100" value="{{ recipe.title }}">
+
+      <label for="description">Description: </label>
+      <textarea id="description" name="description" rows="2" required>{{ recipe.description }}</textarea>
+
+      <div class="flex-row">
+        <div class="flex-half">
+          <label for="cook_time">Cook Time (minutes): </label>
+          <input type="number" id="cook_time" name="cook_time" required value="{{ recipe.cook_time }}">
+        </div>
+        <div class="flex-half">
+          <label for="servings">Servings: </label>
+          <input type="number" id="servings" name="servings" required value="{{ recipe.servings }}">
+        </div>
+      </div>
+
+      <label>Privacy:</label>
+      <div class="privacy-options">
+        <label><input type="radio" name="privacy" value="public" {% if recipe.access_level == 'public' %}checked{% endif %}> Public</label>
+        <label><input type="radio" name="privacy" value="private" {% if recipe.access_level == 'private' %}checked{% endif %}> Private</label>
+        <label><input type="radio" name="privacy" value="shared" {% if recipe.access_level == 'shared' %}checked{% endif %}> Shared</label>
+      </div>
+
+      <div id="shared-with-section" style="display: none;">
+        <label>Who do you want to share this with?</label>
+        <div class="shared-input">
+          <input type="text" id="shared-with" placeholder="Enter user display name">
+          <button type="button" id="add-shared-user-btn">Add</button>
+        </div>
+        <ul id="shared-users-list">
+          {% for user in shared_users %}
+            <li>
+              {{ user.display_name }}
+              <button type="button" class="remove-shared-user-btn" data-user-id="{{ user.id }}">✕</button>
+            </li>
+          {% endfor %}
+        </ul>
+        <input type="hidden" name="shared_user_ids" id="shared-user-ids" value="{{ shared_user_ids }}">
+      </div>
+
+      {% if recipe.images %}
+        <p>Current image:</p>
+        <img src="{{ recipe.images[0].image_url }}" width="200" />
+        {% endif %}
+      <label for="image">Upload New Image:</label>
+      <input type="file" id="image" name="image" accept="image/*">
+      <small class="image-note">Only one image allowed</small>
+
+      <div id="ingredients-section">
+        <h3>Ingredients:</h3>
+        <div id="ingredients-container"></div>
+        <button type="button" id="add-ingredient-btn">+ Add Ingredient</button>
+      </div>
+
+      <div id="instructions-section">
+        <h3>Instructions:</h3>
+        <div id="instructions-container"></div>
+          <button type="button" id="add-instruction-btn">+ Add Step</button>
+      </div>
+
+      <button type="submit" class="submit-btn">Update Recipe</button>
+    </form>
+  </div>
+
+<!-- Overlay-->
+  <div id="ingredient-overlay" class="overlay hidden">
+    <div class="overlay-content">
+      <h2>Add a New Ingredient</h2>
+      <label for="new-ingredient-name">Enter the "new" ingredient name:</label>
+      <input type="text" id="new-ingredient-name" placeholder="e.g. Saffron">
+      <label for="new-ingredient-unit">What is the Unit of Measurement?</label>
+      <input type="text" id="new-ingredient-unit" placeholder="e.g. g, tsp">
+      <div class="overlay-actions">
+        <button type="button" onclick="submitNewIngredient()">Add Ingredient</button>
+        <button type="button" onclick="closeIngredientOverlay()">Cancel</button>
+      </div>
+      <div id="ingredient-overlay-error"></div>
+    </div>
+  </div>
+
+  <script>
+    window.ingredientUnits = {{ ingredient_units|tojson }};
+    window.prefilledIngredients = {{ recipe.ingredients|tojson }};
+    window.prefilledInstructions = {{ recipe.instructions|tojson }};
+  </script>
+
+</body>
+</html>

@@ -504,6 +504,71 @@ def search():
         recipe_images=recipe_images
     )
 
+@app.route('/edit/<int:recipe_id>', methods=['GET', 'POST'])
+@login_required
+def edit_recipe(recipe_id):
+    recipe = Recipe.query.get_or_404(recipe_id)
+
+    if recipe.user_id != current_user.id:
+        flash('You do not have permission to edit this recipe.', 'error')
+        return redirect(url_for('view_recipe', id=recipe.id))
+
+    if request.method == 'POST':
+        recipe.name = request.form['title']
+        recipe.description = request.form['description']
+        recipe.cook_time = int(request.form['cook_time'])
+        recipe.servings = int(request.form['servings'])
+        recipe.access_level = request.form.get('privacy', 'public')
+        
+        if recipe.access_level == 'shared':
+            shared_user_ids = request.form.get('shared_user_ids', '')
+            if shared_user_ids:
+                user_ids = [int(id) for id in shared_user_ids.split(',') if id]
+                recipe.shared_users = User.query.filter(User.id.in_(user_ids)).all()
+            else:
+                recipe.shared_users = []
+
+        # Handle image upload
+        image_file = request.files.get('image')
+        if image_file and image_file.filename != "":
+            if recipe.images:
+                for img in recipe.images:
+                    db.session.delete(img)
+
+            filename = secure_filename(image_file.filename)
+            path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            image_file.save(path)
+
+            db.session.add(RecipeImage(recipe_id=recipe.id, image_url=url_for('images', filename=filename)))
+
+        RecipeIngredient.query.filter_by(recipe_id=recipe.id).delete()
+        ingredients = request.form.getlist('ingredients[]')
+        quantities = request.form.getlist('quantities[]')
+        for name, qty in zip(ingredients, quantities):
+            ingr = BaseIngredient.query.filter_by(name=name).first()
+            if ingr:
+                db.session.add(RecipeIngredient(recipe_id=recipe.id, ingredient_id=ingr.id, quantity=qty))
+        
+        Instruction.query.filter_by(recipe_id=recipe.id).delete()
+        instructions = request.form.getlist('instructions[]')
+        for i, step in enumerate(instructions, start=1):
+            db.session.add(Instruction(recipe_id=recipe.id, step_number=i, content=step))
+
+        db.session.commit()
+        flash('Recipe updated successfully!', 'success')
+        return redirect(url_for('view_recipe', id=recipe.id))
+    
+    base_ingredients = BaseIngredient.query.all()
+    ingredient_units = {bi.name: bi.default_unit for bi in base_ingredients}
+    shared_ids = [user.id for user in recipe.shared_users] if recipe.shared_users else []
+    ingredients = [{"name": ri.ingredient.name, "quantity": ri.quantity} for ri in recipe.ingredients]
+    instructions = [step.content for step in sorted(recipe.instructions, key=lambda x: x.step_number)]
+
+
+    return render_template('EditRecipe.html', recipe=recipe, base_ingredients=base_ingredients, ingredient_units=ingredient_units, shared_ids=shared_ids)
+
+
+
 #Run Server
 if __name__ == '__main__':
     app.run(debug=True)
