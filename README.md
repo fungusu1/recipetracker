@@ -29,11 +29,11 @@ Next install the requirements. In the main project directory 'recipetracker' run
 ```
 pip install -r requirements.txt
 ```
-Next create the SQLAlchemy database in the main directory by running:
+Next, in the 'Recipe Index' directory create the SQLAlchemy database by running:
 ```
 python3 CreateDB.py
 ```
-You can run the populate database script here to fill it with dummy data, or alternatively it's called when running the selenium tests:
+You can run the populate database script here to fill it with dummy data, or alternatively it's called when running the selenium tests. We recommend running here:
 ```
 python3 PopulateDB.py [amount of entries to be created]
 ```
