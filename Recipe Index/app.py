@@ -61,39 +61,48 @@ def images(filename):
 @app.route('/')
 def homepage():
 
-    # Get top 3 chefs (based on # of recipes)
+    # Get top 3 chefs (based on # of public recipes)
     top_chefs = (
-        db.session.query(User)
+        db.session.query(User, func.count(Recipe.id).label('total_recipes'))
         .options(joinedload(User.profile_image))
         .join(Recipe)
+        .filter(Recipe.access_level == 0)
         .group_by(User.id)
         .order_by(func.count(Recipe.id).desc())
         .limit(3)
         .all()
     )
+    # Unpack User and total_recipes for template compatibility
+    top_chefs_objs = []
+    for user, total_recipes in top_chefs:
+        chef_obj = type('ChefObj', (), {k: getattr(user, k) for k in dir(user) if not k.startswith('__') and not callable(getattr(user, k)) and k != 'total_recipes'})()
+        chef_obj.total_recipes = total_recipes
+        top_chefs_objs.append(chef_obj)
+    top_chefs = top_chefs_objs
 
-    # Get top 3 recipes (based on highest avg ratings)
+    # Get top 3 recipes (based on highest avg ratings, only public)
     top_recipes = (
         db.session.query(Recipe)
         .join(Rating)
         .options(
-            joinedload(Recipe.user)                     # Recipe → user  (JOIN)
-            .joinedload(User.profile_image)             # user  → image (JOIN)
-        )   
+            joinedload(Recipe.user)
+            .joinedload(User.profile_image)
+        )
+        .filter(Recipe.access_level == 0)
         .group_by(Recipe.id)
         .order_by(func.avg(Rating.rating).desc(),
-                    func.count(Rating.id).desc(),
-                    func.max(Rating.created_at).desc()
-        )
+                  func.count(Rating.id).desc(),
+                  func.max(Rating.created_at).desc())
         .limit(3)
         .all()
     )
 
-    # Get the 3/5 latest recipes
+    # Get the 3/5 latest reviews (only for public recipes)
     latest_reviews = (
         db.session.query(Rating, User, Recipe)
         .join(User, Rating.user_id == User.id)
         .join(Recipe, Rating.recipe_id == Recipe.id)
+        .filter(Recipe.access_level == 0)
         .options(joinedload(User.profile_image))
         .order_by(Rating.created_at.desc())
         .limit(5)
