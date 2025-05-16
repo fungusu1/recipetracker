@@ -167,19 +167,19 @@ def main() -> None:
         test_users_data = [
             {
                 "email": "test1@email.com",
-                "password": "password111",
+                "password": "1",
                 "display_name": "Test User 1",
                 "profile_description": "Test user 1 profile description!",
             },
             {
                 "email": "test2@email.com",
-                "password": "password222",
+                "password": "2",
                 "display_name": "Test User 2",
                 "profile_description": "Hi, this is test user 2 profile description.",
             },
             {
                 "email": "test3@email.com",
-                "password": "password333",
+                "password": "3",
                 "display_name": "Test User 3",
                 "profile_description": "Test user 3 profile description is here.",
             },
