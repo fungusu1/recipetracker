@@ -55,6 +55,8 @@ def images(filename):
     return send_from_directory('images', filename)
 
 #Page Routing
+#========================================================================================================================================
+#========================================================================================================================================
 @app.route('/')
 def homepage():
 
@@ -124,6 +126,8 @@ def add_base_ingredient():
                 name=bi.name,
                 default_unit=bi.default_unit), 201
 
+#========================================================================================================================================
+#========================================================================================================================================
 @app.route('/create', methods=['GET', 'POST'])
 @login_required
 def create():
@@ -222,6 +226,8 @@ def find_user():
         return jsonify(error="User not found"), 404
     return jsonify(id=user.id, display_name=user.display_name)
 
+#========================================================================================================================================
+#========================================================================================================================================
 @app.route('/browse')
 def browse():
     ingredients = request.args.getlist('ingredient[]')
@@ -249,6 +255,9 @@ def browse():
         )
 
     query = Recipe.query
+
+    # Only show public recipes (access_level == 0)
+    query = query.filter(Recipe.access_level == 0)
 
     # Sorting logic
     if sort == 'cook-time-asc':
@@ -279,6 +288,7 @@ def browse():
     recipe_missing_amounts = {}
     for recipe in recipes:
         missing = []
+        partials = []
         for ri in recipe.ingredients:
             ing_name = ri.ingredient.name
             required = float(ri.quantity) if ri.quantity else 0
@@ -291,8 +301,17 @@ def browse():
                 user_has = 0
             if user_has < required:
                 missing_amt = required - user_has
-                missing.append(f"{ing_name} ({missing_amt:g} {ri.ingredient.default_unit})")
-        recipe_missing_amounts[recipe.id] = missing
+                missing_item = {
+                    'name': ing_name,
+                    'amount': f"{missing_amt:g} {ri.ingredient.default_unit}",
+                    'partial': (user_has > 0)
+                }
+                if user_has > 0:
+                    partials.append(missing_item)
+                else:
+                    missing.append(missing_item)
+        # Put partials at the top
+        recipe_missing_amounts[recipe.id] = partials + missing
 
     filtered_recipes = []
     filtered_missing_ingredients = {}
@@ -300,10 +319,16 @@ def browse():
 
     for recipe in recipes:
         missing = recipe_missing_ingredients.get(recipe.id, [])
-        if len(missing) <= 3:
+        # Show recipes with up to 5 missing ingredients
+        if len(missing) <= 5:
             filtered_recipes.append(recipe)
             filtered_missing_ingredients[recipe.id] = missing
-            filtered_missing_amounts[recipe.id] = recipe_missing_amounts.get(recipe.id, [])
+            # For the browser card, only show the first 4, and a flag if more
+            missing_amounts = recipe_missing_amounts.get(recipe.id, [])
+            filtered_missing_amounts[recipe.id] = {
+                'list': missing_amounts[:4],
+                'more': len(missing_amounts) > 4
+            }
 
     recipe_images = {}
     for recipe in filtered_recipes:
@@ -312,9 +337,37 @@ def browse():
         else:
             recipe_images[recipe.id] = url_for('images', filename='no-image-available-icon-vector.jpg')
 
+    # Apply main sort first (already done above)
+    # Now sort by main sort, then missing count, then rating
+    def main_sort_key(recipe):
+        if sort == 'cook-time-asc':
+            return recipe.cook_time
+        elif sort == 'cook-time-desc':
+            return -recipe.cook_time
+        elif sort == 'quantity-desc':
+            return -recipe.servings
+        elif sort == 'quantity-asc':
+            return recipe.servings
+        else:
+            return recipe.cook_time
+    def missing_count(recipe):
+        missing = filtered_missing_ingredients.get(recipe.id, [])
+        return len(missing)
+    def rating(recipe):
+        return getattr(recipe, 'average_rating', 0) or 0
+    filtered_recipes.sort(key=lambda r: (main_sort_key(r), missing_count(r), -rating(r)))
+
+    # Pagination for recipe previews
+    page = int(request.args.get('page', 1))
+    per_page = 40
+    start = (page - 1) * per_page
+    end = start + per_page
+    paginated_recipes = filtered_recipes[start:end]
+    show_more = end < len(filtered_recipes)
+
     return render_template(
         'Browser.html',
-        recipes=filtered_recipes,
+        recipes=paginated_recipes,
         ingredients=all_ingredients,
         ingredient_units=ingredient_units,
         selected_ingredients=ingredients,
@@ -322,9 +375,136 @@ def browse():
         selected_sort=sort,
         recipe_missing_ingredients=filtered_missing_ingredients,
         recipe_missing_amounts=filtered_missing_amounts,
-        recipe_images=recipe_images
+        recipe_images=recipe_images,
+        show_more=show_more,
+        next_page=page+1 if show_more else None
     )
+@app.route('/browse/load_more')
+def browse_load_more():
+    ingredients = request.args.getlist('ingredient[]')
+    servings = request.args.getlist('servings[]')
+    sort = request.args.get('sort', type=str)
+    page = int(request.args.get('page', 1))
+    per_page = 40
+    # (reuse all filtering/sorting logic from /browse)
+    # ... (copy logic from /browse up to filtered_recipes)
+    all_ingredients = BaseIngredient.query.order_by(BaseIngredient.name).all()
+    ingredient_units = {ing.name: ing.default_unit for ing in all_ingredients}
+    selected_ingredient_ids = []
+    selected_ingredient_names = []
+    for ingredient in ingredients:
+        if not ingredient:
+            continue
+        base_ingredient = BaseIngredient.query.filter(BaseIngredient.name == ingredient).first()
+        if base_ingredient:
+            selected_ingredient_ids.append(base_ingredient.id)
+            selected_ingredient_names.append(base_ingredient.name)
+    recipe_ids_with_any = set()
+    if selected_ingredient_ids:
+        recipe_ids_with_any = set(
+            ri.recipe_id for ri in RecipeIngredient.query.filter(RecipeIngredient.ingredient_id.in_(selected_ingredient_ids)).all()
+        )
+    query = Recipe.query
+    # Only show public recipes (access_level == 0)
+    query = query.filter(Recipe.access_level == 0)
+    if sort == 'cook-time-asc':
+        query = query.order_by(Recipe.cook_time.asc())
+    elif sort == 'cook-time-desc':
+        query = query.order_by(Recipe.cook_time.desc())
+    elif sort == 'quantity-desc':
+        query = query.order_by(Recipe.servings.desc())
+    elif sort == 'quantity-asc':
+        query = query.order_by(Recipe.servings.asc())
+    else:
+        query = query.order_by(Recipe.cook_time.asc())
+    recipes = query.all()
+    recipe_missing_ingredients = {}
+    if selected_ingredient_ids:
+        selected_ingredient_names_set = set(selected_ingredient_names)
+        for recipe in recipes:
+            recipe_ingredient_names = [ri.ingredient.name for ri in recipe.ingredients]
+            missing = [name for name in recipe_ingredient_names if name not in selected_ingredient_names_set]
+            recipe_missing_ingredients[recipe.id] = missing
+    else:
+        recipe_missing_ingredients = {}
+    user_ingredient_amounts = dict(zip(ingredients, servings))
+    recipe_missing_amounts = {}
+    for recipe in recipes:
+        missing = []
+        partials = []
+        for ri in recipe.ingredients:
+            ing_name = ri.ingredient.name
+            required = float(ri.quantity) if ri.quantity else 0
+            if ing_name in user_ingredient_amounts:
+                if user_ingredient_amounts[ing_name] in [None, '', 'None']:
+                    user_has = 9999
+                else:
+                    user_has = float(user_ingredient_amounts[ing_name])
+            else:
+                user_has = 0
+            if user_has < required:
+                missing_amt = required - user_has
+                missing_item = {
+                    'name': ing_name,
+                    'amount': f"{missing_amt:g} {ri.ingredient.default_unit}",
+                    'partial': (user_has > 0)
+                }
+                if user_has > 0:
+                    partials.append(missing_item)
+                else:
+                    missing.append(missing_item)
+        recipe_missing_amounts[recipe.id] = partials + missing
+    filtered_recipes = []
+    filtered_missing_ingredients = {}
+    filtered_missing_amounts = {}
+    for recipe in recipes:
+        missing = recipe_missing_ingredients.get(recipe.id, [])
+        if len(missing) <= 5:
+            filtered_recipes.append(recipe)
+            filtered_missing_ingredients[recipe.id] = missing
+            missing_amounts = recipe_missing_amounts.get(recipe.id, [])
+            filtered_missing_amounts[recipe.id] = {
+                'list': missing_amounts[:4],
+                'more': len(missing_amounts) > 4
+            }
+    def main_sort_key(recipe):
+        if sort == 'cook-time-asc':
+            return recipe.cook_time
+        elif sort == 'cook-time-desc':
+            return -recipe.cook_time
+        elif sort == 'quantity-desc':
+            return -recipe.servings
+        elif sort == 'quantity-asc':
+            return recipe.servings
+        else:
+            return recipe.cook_time
+    def missing_count(recipe):
+        missing = filtered_missing_ingredients.get(recipe.id, [])
+        return len(missing)
+    def rating(recipe):
+        return getattr(recipe, 'average_rating', 0) or 0
+    filtered_recipes.sort(key=lambda r: (main_sort_key(r), missing_count(r), -rating(r)))
+    start = (page - 1) * per_page
+    end = start + per_page
+    paginated_recipes = filtered_recipes[start:end]
+    show_more = end < len(filtered_recipes)
+    recipe_images = {}
+    for recipe in paginated_recipes:
+        if recipe.images and len(recipe.images) > 0:
+            recipe_images[recipe.id] = recipe.images[0].image_url
+        else:
+            recipe_images[recipe.id] = url_for('images', filename='no-image-available-icon-vector.jpg')
+    html = render_template('RecipeCards.html',
+        recipes=paginated_recipes,
+        recipe_images=recipe_images,
+        recipe_missing_ingredients=filtered_missing_ingredients,
+        recipe_missing_amounts=filtered_missing_amounts,
+        selected_ingredients=ingredients
+    )
+    return jsonify({'html': html, 'show_more': show_more, 'next_page': page+1 if show_more else None})
 
+#========================================================================================================================================
+#========================================================================================================================================
 @app.route('/recipe')
 def view_recipe():
     recipe_id = request.args.get('id')
@@ -463,6 +643,8 @@ def add_review(recipe_id):
         }
     }), 201
 
+#========================================================================================================================================
+#========================================================================================================================================
 @app.route('/profile')
 @login_required
 def profile():
@@ -523,6 +705,8 @@ def edit_profile():
         return redirect(url_for('profile'))
     return render_template('EditProfile.html', user=current_user)
 
+#========================================================================================================================================
+#========================================================================================================================================
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
@@ -544,6 +728,8 @@ def login():
         flash('Invalid email or password', 'error')
     return render_template('Login.html', form=form)
 
+#========================================================================================================================================
+#========================================================================================================================================
 @app.route('/logout')
 @login_required
 def logout():
@@ -551,6 +737,8 @@ def logout():
     flash('You have been logged out ;(', 'logout')
     return redirect(url_for('homepage'))
 
+#========================================================================================================================================
+#========================================================================================================================================
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     form = SignUpForm()
@@ -578,6 +766,8 @@ def signup():
     
     return render_template('SignUp.html', form=form)
 
+#========================================================================================================================================
+#========================================================================================================================================
 @app.route('/search')
 def search():
     query = request.args.get('q', '').strip()
@@ -600,6 +790,8 @@ def search():
         recipe_images=recipe_images
     )
 
+#========================================================================================================================================
+#========================================================================================================================================
 @app.route('/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
 def edit_recipe(id):
