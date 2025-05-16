@@ -33,7 +33,7 @@ Next, in the 'Recipe Index' directory create the SQLAlchemy database by running:
 ```
 python3 CreateDB.py
 ```
-You can run the populate database script here to fill it with dummy data, or alternatively it's called when running the selenium tests. We recommend running here:
+You can run the populate database script here to fill it with dummy data, or alternatively it's called when running the selenium tests. We recommend running here with 20 entries:
 ```
 python3 PopulateDB.py [amount of entries to be created]
 ```
