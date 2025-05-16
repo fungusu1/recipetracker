@@ -103,7 +103,7 @@
                     <span><b>Quantity:</b> Serves {{ recipe.servings }}</span>
                   </div>
                   <div class="browser-card-rating">
-                    Rating: {{ recipe.average_rating|default(0)|float|round(1) }} / 5
+                    Rating: {{ recipe.average_rating|default(0)|float|round(1) }} / 5<span class="views-count">| Views: {{ recipe.view_count }}</span>
                   </div>
                 </div>
               </div>
@@ -151,3 +151,4 @@
   </div>
 </body>
 </html>
+
