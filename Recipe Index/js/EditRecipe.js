@@ -1,158 +1,128 @@
-document.addEventListener('DOMContentLoaded', function() {
-  reinitAllIngredientSelect2();
+document.addEventListener('DOMContentLoaded', function () {
+  initSelect2();
   setupPrivacyToggle();
+  setupSharedUserLogic();
+  setupIngredientOverlay();
   prefillIngredients();
   prefillInstructions();
-  setupIngredientOverlay();
-  setupSharedUserLogicI();
+  updateIngredientOptions();
+  updateUnitLabels();
 
+  document.getElementById('add-instruction-btn').addEventListener('click', () => {
+    addInstructionField();
+  });
+
+  document.getElementById('add-ingredient-btn').addEventListener('click', () => {
+    addIngredientField();
+  });
 });
 
-// Initialise select2
+function prefillIngredients() {
+  const container = document.getElementById('ingredients-container');
+  container.innerHTML = '';
 
-function initSelect2() {
+  window.prefilledIngredients.forEach(({ name, quantity }) => {
+    const div = document.createElement('div');
+    div.className = 'ingredient-item flex-row';
+    div.innerHTML = `
+      <div class="flex-half">
+        <select name="ingredients[]" class="ingredient-select textarea-wrapper" required>
+          <option value="">Select ingredient</option>
+          ${Object.keys(window.ingredientUnits).map(i =>
+            `<option value="${i}" ${i === name ? 'selected' : ''}>${i}</option>`
+          ).join('')}
+        </select>
+        <span class="unit-label"></span>
+      </div>
+      <div class="flex-half quantity-group">
+        <input type="number" name="quantities[]" value="${quantity}" required class="quantity-input">
+        <span class="unit-label-inside"></span>
+        <span class="unit-label-outside hidden"></span>
+      </div>
+      <button type="button" class="remove-btn" onclick="removeIngredientField(this)">✕</button>
+    `;
+    container.appendChild(div);
+  });
+
+  reinitAllIngredientSelect2();
+  updateIngredientOptions();
+  updateUnitLabels();
+}
+
+function prefillInstructions() {
+  const container = document.getElementById('instructions-container');
+  container.innerHTML = '';
+  window.prefilledInstructions.forEach((step, index) => {
+    const div = document.createElement('div');
+    div.className = 'instruction-item';
+    div.innerHTML = `
+      <div class="item-label">${index + 1}.</div>
+      <textarea name="instructions" required rows="1" class="textarea-wrapper">${step}</textarea>
+      <button type="button" class="remove-btn" onclick="removeInstructionField(this)">✕</button>
+    `;
+    container.appendChild(div);
+  });
+  renumberInstructions(container);
+}
+
+// Add ingredient field
+function addIngredientField() {
+  const container = document.getElementById('ingredients-container');
+  const div = document.createElement('div');
+  div.className = 'ingredient-item flex-row';
+
+  div.innerHTML = `
+    <div class="flex-half">
+      <select name="ingredients[]" class="ingredient-select textarea-wrapper" required>
+        <option value="">Select ingredient</option>
+        ${Object.keys(window.ingredientUnits).map(i =>
+          `<option value="${i}">${i}</option>`
+        ).join('')}
+      </select>
+      <span class="unit-label"></span>
+    </div>
+    <div class="flex-half quantity-group">
+      <input type="number" name="quantities[]" required class="quantity-input">
+      <span class="unit-label-inside"></span>
+      <span class="unit-label-outside hidden"></span>
+    </div>
+    <button type="button" class="remove-btn" onclick="removeIngredientField(this)">✕</button>
+  `;
+  container.appendChild(div);
+  reinitAllIngredientSelect2();
+  updateIngredientOptions();
+  updateUnitLabels();
+}
+
+function removeIngredientField(btn) {
+  const container = document.getElementById('ingredients-container');
+  if (container.children.length > 1) {
+    btn.parentElement.remove();
+    updateIngredientOptions();
+  }
+}
+
+function reinitAllIngredientSelect2() {
   $('.ingredient-select').each(function () {
     if ($(this).next('.select2').length) {
       $(this).select2('destroy');
       $(this).next('.select2').remove();
     }
-  });
-  $('.ingredient-select').select2({
-    placeholder: 'Select ingredient',
-    allowClear: true,
-    width: 'style'
-  }).on('change', function () {
-    updateIngredientOptions();
-    updateUnitLabels();
-  });
-  updateIngredientOptions();
-  updateUnitLabels();
-}
-
-// Setup prefilled information
-  // Prefill Ingredients
-function prefillIngredients() {
-  const container = document.getElementById('ingredients-container');
-  window.prefilledIngredients.forEach(({ name, quantity }) => {
-    const div = document.createElement('div');
-    div.className = 'ingredient-item';
-    div.innerHTML = `
-      <select name="ingredient_name" class="ingredient-select" required>
-        ${Object.keys(window.ingredientUnits).map(i =>
-          `<option value="${i}" ${i === name ? 'selected' : ''}>${i}</option>`
-        ).join('')}
-      </select>
-      <input type="number" name="quantity" value="${quantity}" required>
-      <span class="unit-label-outside">${window.ingredientUnits[name] || ''}</span>
-      <button type="button" class="remove-btn">✕</button>
-    `;
-    div.querySelector('.remove-btn').addEventListener('click', () => {
-      div.remove();
+    $(this).select2({
+      placeholder: 'Select ingredient',
+      allowClear: true,
+      width: 'style'
+    }).on('change', function () {
       updateIngredientOptions();
+      updateUnitLabels();
     });
-    container.appendChild(div);
-  });
-  initSelect2();
-}
-  // Prefill Instructions
-function prefillInstructions() {
-  const container = document.getElementById('instructions-container');
-  window.prefilledInstructions.forEach((text, i) => {
-    const div = document.createElement('div');
-    div.className = 'instruction-item';
-    div.innerHTML = `
-      <div class="item-label">${i + 1}.</div>
-      <textarea name="instructions[]" required>${text}</textarea>
-      <button type="button" class="remove-btn">✕</button>
-    `;
-    div.querySelector('.remove-btn').addEventListener('click', () => {
-      div.remove();
-      renumberInstructions(container);
-    });
-    container.appendChild(div);
   });
 }
 
-// Ingredient overlay
-function setupIngredientOverlay() {
-  document.getElementById('add-ingredient-btn').addEventListener('click', () => {
-    document.getElementById('ingredient-overlay').classList.remove('hidden');
-  });
-
-  document.querySelector('#ingredient-overlay .overlay').addEventListener('click', (e) => {
-    if (e.target.id === 'ingredient-overlay') closeIngredientOverlay();
-  });
-
-  document.querySelector('#ingredient-overlay .overlay-actions button:last-child')
-    .addEventListener('click', closeIngredientOverlay);
-
-  document.querySelector('#ingredient-overlay .overlay-actions button:first-child')
-    .addEventListener('click', async () => {
-      const name = document.getElementById('new-ingredient-name').value.trim();
-      const unit = document.getElementById('new-ingredient-unit').value.trim();
-      const errorDiv = document.getElementById('ingredient-overlay-error');
-
-      if (!name) {
-        errorDiv.textContent = 'Please enter an ingredient name.';
-        return;
-      }
-
-      try {
-        const resp = await fetch('/api/base_ingredients', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name, default_unit: unit })
-        });
-        const data = await resp.json();
-
-        if (!resp.ok) {
-          errorDiv.textContent = data.error || 'Could not add ingredient';
-          return;
-        }
-
-        window.ingredientUnits[name] = unit;
-        closeIngredientOverlay();
-        addIngredientField(name);
-
-      } catch (err) {
-        errorDiv.textContent = 'Error: ' + err.message;
-      }
-    });
-}
-
-function closeIngredientOverlay() {
-  const overlay = document.getElementById('ingredient-overlay');
-  overlay.classList.add('remove');
-}
-
-function addIngredientField(selectedName = '') {
-  const container = document.getElementById('ingredients-container');
-  const div = document.createElement('div');
-  div.className = 'ingredient-item';
-  div.innerHTML = `
-    <select name="ingredient_name" class="ingredient-select" required>
-      ${Object.keys(window.ingredientUnits).map(i =>
-        `<option value="${i}" ${i === selectedName ? 'selected' : ''}>${i}</option>`
-      ).join('')}
-    </select>
-    <input type="number" name="quantity" required>
-    <span class="unit-label-outside">${window.ingredientUnits[selectedName] || ''}</span>
-    <button type="button" class="remove-btn">✕</button>
-  `;
-  div.querySelector('.remove-btn').addEventListener('click', () => {
-    div.remove();
-    updateIngredientOptions();
-  });
-  container.appendChild(div);
-  initSelect2();
-  updateIngredientOptions();
-  updateUnitLabels();
-}
-
-// select2 Helpers
 function updateIngredientOptions() {
   const selected = Array.from(document.querySelectorAll('.ingredient-select'))
-    .map(sel => sel.value).filter(Boolean);
+    .map(sel => sel.value)
+    .filter(Boolean);
 
   document.querySelectorAll('.ingredient-select').forEach(sel => {
     const current = sel.value;
@@ -164,34 +134,49 @@ function updateIngredientOptions() {
 }
 
 function updateUnitLabels() {
-  document.querySelectorAll('.ingredient-item').forEach(item => {
-    const select = item.querySelector('.ingredient-select');
-    const label = item.querySelector('.unit-label-outside');
-    label.textContent = window.ingredientUnits?.[select?.value] || '';
+  document.querySelectorAll('.ingredient-item').forEach((item, idx) => {
+    const select = item.querySelector('select[name="ingredient_name"]');
+    const inside = item.querySelector('.unit-label-inside');
+    const outside = item.querySelector('.unit-label-outside');
+    const unit = window.ingredientUnits?.[select?.value] || '';
+    if (idx === 0) {
+      inside.textContent = unit ? `(${unit})` : '';
+      inside.classList.remove('hidden');
+      outside.classList.add('hidden');
+    } else {
+      inside.textContent = '';
+      inside.classList.add('hidden');
+      outside.textContent = unit ? `(${unit})` : '';
+      outside.classList.remove('hidden');
+    }
   });
 }
 
 // Instructions
-document.getElementById('add-instruction-btn').addEventListener('click', () => {
+function addInstructionField() {
   const container = document.getElementById('instructions-container');
   const div = document.createElement('div');
   div.className = 'instruction-item';
   div.innerHTML = `
     <div class="item-label"></div>
-    <textarea name="instructions[]" required></textarea>
-    <button type="button" class="remove-btn">✕</button>
+    <textarea name="instructions" required rows="1" class="textarea-wrapper"></textarea>
+    <button type="button" class="remove-btn" onclick="removeInstructionField(this)">✕</button>
   `;
-  div.querySelector('.remove-btn').addEventListener('click', () => {
-    div.remove();
-    renumberInstructions(container);
-  });
   container.appendChild(div);
   renumberInstructions(container);
-});
+}
+
+function removeInstructionField(btn) {
+  const container = document.getElementById('instructions-container');
+  if (container.children.length > 1) {
+    btn.parentElement.remove();
+    renumberInstructions(container);
+  }
+}
 
 function renumberInstructions(container) {
-  container.querySelectorAll('.instruction-item').forEach((item, idx) => {
-    item.querySelector('.item-label').textContent = `${idx + 1}.`;
+  container.querySelectorAll('.instruction-item').forEach((item, i) => {
+    item.querySelector('.item-label').textContent = `${i + 1}.`;
   });
 }
 
@@ -201,13 +186,13 @@ function setupPrivacyToggle() {
   const section = document.getElementById('shared-with-section');
   radios.forEach(radio => {
     radio.addEventListener('change', () => {
-      section.style.display = radio.value === 'shared' ? 'block' : 'none';
+      section.style.display = radio.value === '2' ? 'block' : 'none';
     });
   });
 
-  // Show if shared was already selected
-  document.querySelector('input[name="privacy"]:checked')?.value === 'shared' &&
-    (section.style.display = 'block');
+  if (document.querySelector('input[name="privacy"]:checked')?.value === '2') {
+    section.style.display = 'block';
+  }
 }
 
 function setupSharedUserLogic() {
@@ -221,3 +206,48 @@ function setupSharedUserLogic() {
     });
   });
 }
+
+// Overlay
+function openIngredientOverlay() {
+  const overlay = document.getElementById('ingredient-overlay');
+  overlay.classList.remove('hidden');
+  setTimeout(() => overlay.classList.add('show'), 10);
+  document.getElementById('new-ingredient-name').value = '';
+  document.getElementById('new-ingredient-unit').value = '';
+  document.getElementById('ingredient-overlay-error')?.textContent = '';
+}
+function closeIngredientOverlay() {
+  const overlay = document.getElementById('ingredient-overlay');
+  overlay.classList.remove('show');
+  setTimeout(() => overlay.classList.add('hidden'), 300);
+}
+async function submitNewIngredient() {
+  const name = document.getElementById('new-ingredient-name').value.trim();
+  const unit = document.getElementById('new-ingredient-unit').value.trim();
+  const errorDiv = document.getElementById('ingredient-overlay-error');
+  if (!name) {
+    errorDiv.textContent = 'Please enter an ingredient name.';
+    return;
+  }
+  try {
+    const resp = await fetch('/api/base_ingredients', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, default_unit: unit })
+    });
+    const data = await resp.json();
+    if (!resp.ok) {
+      errorDiv.textContent = data.error || 'Could not add ingredient';
+      return;
+    }
+    closeIngredientOverlay();
+    addIngredientField(name);
+  } catch (err) {
+    errorDiv.textContent = 'Error: ' + err.message;
+  }
+}
+
+// for overlay
+window.submitNewIngredient = submitNewIngredient;
+window.closeIngredientOverlay = closeIngredientOverlay;
+window.openIngredientOverlay = openIngredientOverlay;

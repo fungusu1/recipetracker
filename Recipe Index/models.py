@@ -49,6 +49,7 @@ class Recipe(db.Model):
     shared_with_ids = db.Column(db.String(255), default='[]')
     access_level = db.Column(db.Integer, default=0)
     view_count = db.Column(db.Integer, default=0)
+    shared_with_ids = db.Column(db.String)
 
     @property
     def average_rating(self):
@@ -60,6 +61,11 @@ class Recipe(db.Model):
     instructions = db.relationship('Instruction', backref='recipe', cascade="all, delete-orphan", lazy=True)
     images = db.relationship('RecipeImage', backref='recipe', cascade="all, delete-orphan", lazy=True)
     ratings = db.relationship('Rating', backref='recipe', cascade="all, delete-orphan", lazy=True)
+
+    # Helper method to get shared user IDs
+    def get_shared_user_ids(self):
+        return [int(uid) for uid in self.shared_with_ids.split(',') if uid] if self.shared_with_ids else []
+
 
 # Recipes' Ingredient Table
 class RecipeIngredient(db.Model):

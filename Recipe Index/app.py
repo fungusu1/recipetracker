@@ -522,11 +522,9 @@ def edit_recipe(recipe_id):
         
         if recipe.access_level == 'shared':
             shared_user_ids = request.form.get('shared_user_ids', '')
-            if shared_user_ids:
-                user_ids = [int(id) for id in shared_user_ids.split(',') if id]
-                recipe.shared_users = User.query.filter(User.id.in_(user_ids)).all()
-            else:
-                recipe.shared_users = []
+            recipe.shared_with_ids = shared_user_ids
+        else:
+            recipe.shared_users = []
 
         # Handle image upload
         image_file = request.files.get('image')
@@ -560,12 +558,26 @@ def edit_recipe(recipe_id):
     
     base_ingredients = BaseIngredient.query.all()
     ingredient_units = {bi.name: bi.default_unit for bi in base_ingredients}
-    shared_ids = [user.id for user in recipe.shared_users] if recipe.shared_users else []
-    ingredients = [{"name": ri.ingredient.name, "quantity": ri.quantity} for ri in recipe.ingredients]
-    instructions = [step.content for step in sorted(recipe.instructions, key=lambda x: x.step_number)]
+    ingredients = [{"name": str(ri.ingredient.name), "quantity": str(ri.quantity)} for ri in recipe.ingredients]
+    instructions = [str(step.content) for step in sorted(recipe.instructions, key=lambda x: x.step_number)]
+
+    shared_ids = recipe.get_shared_user_ids() if recipe.access_level == 'shared' else []
+    shared_users = User.query.filter(User.id.in_(shared_ids)).all() if shared_ids else []
+    shared_user_ids = ",".join(str(uid) for uid in shared_ids)
+
+    current_image = recipe.images[0].image_url if recipe.images else url_for('images', filename='no-image-available-icon-vector.jpg')
 
 
-    return render_template('EditRecipe.html', recipe=recipe, base_ingredients=base_ingredients, ingredient_units=ingredient_units, shared_ids=shared_ids)
+    return render_template('EditRecipe.html',
+                           recipe=recipe,
+                           base_ingredients=base_ingredients,
+                           ingredient_units=ingredient_units,
+                           shared_ids=shared_ids,
+                           shared_users=shared_users,
+                           shared_user_ids=shared_user_ids,
+                           ingredients=ingredients,
+                           instructions=instructions,
+                           current_image=current_image)
 
 
 
