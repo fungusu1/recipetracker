@@ -36,6 +36,12 @@
     <div id="reviewsContainer"></div>
 
     <button class="print-button" onclick="window.print()">Print Recipe</button>
+
+    {% if current_user.id == recipe.user_id %}
+      <a href="/edit/{{ recipe.id }}" class="edit-btn">✎ Edit Recipe</a>
+    {% endif %}
+
+
   </div>
 
   <script src="../js/viewRecipe.js"></script>
