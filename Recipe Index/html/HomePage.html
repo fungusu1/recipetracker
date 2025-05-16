@@ -47,25 +47,39 @@
 
   <div class="top-recipes-section">
     <h2>Top Recipes</h2>
-    <div class="top-recipes-grid">
+    <div class="recipe-listing">
       <!-- Top Recipes Section (based on rating)-->
       {% for recipe in top_recipes %}
-        <div class="recipe-preview" onclick="location.href='/recipe?id={{ recipe.id }}'">
-          <img src="{{ recipe.images[0].image_url if recipe.images else url_for('images', filename='no-image-available-icon-vector.jpg') }}" alt="{{ recipe.name }}" />
-          <h3>{{ recipe.name }}</h3>
-          <div class="recipe-meta">
-            <span><strong>Cook Time:</strong> {{ recipe.cook_time }} mins</span>
-            <span class="meta-divider">|</span>
-            <span><strong>Quantity:</strong> Serves {{ recipe.servings }}</span>
-            <span class="meta-divider">|</span>
-          </div>
-          <div class="recipe-meta">
-            <span><strong>Views:</strong> {{ recipe.view_count }}</span>
-          </div>
-          <p>Rating: {{ '%.1f' % recipe.average_rating }}/5.0</p>
-          <p class="author">by {{ recipe.user.display_name }}</p>
+      <div class="recipe-preview"
+      onclick="location.href='/recipe?id={{ recipe.id }}'">
+        <img class="browser-card-img"
+             src="{{ recipe.images[0].image_url
+                     if recipe.images
+                     else url_for('images',
+                                  filename='no-image-available-icon-vector.jpg') }}"
+             alt="{{ recipe.name }}"
+             onerror="this.src='{{ url_for('images',
+                                           filename='no-image-available-icon-vector.jpg') }}'">
+    
+        <h3>{{ recipe.name }}</h3>
+        <p>{{ recipe.description }}</p>
+    
+        <div class="recipe-meta">
+          <span><strong>Cook Time:</strong> {{ recipe.cook_time }} mins</span>
+          <span class="meta-divider">|</span>
+          <span><strong>Quantity:</strong> Serves {{ recipe.servings }}</span>
         </div>
-      {% endfor %}
+    
+        <div class="recipe-meta">
+          <span><strong>Views:</strong> {{ recipe.view_count }}</span>
+          <span class="meta-divider">|</span>
+          <span><strong>Rating:</strong> {{ '%.1f' % recipe.average_rating }}/5.0</span>
+        </div>
+    
+        <p class="author">by {{ recipe.user.display_name }}</p>
+      </div>
+    {% endfor %}
+    
     </div>
   </div>
 
@@ -74,12 +88,20 @@
     <div class="profiles-grid">
       <!-- Top Chefs Section (based on # of recipes)-->
       {% for chef in top_chefs %}
+      <a href="{{ url_for('public_profile', user_id=chef.id) }}"
+      class="recipe-link">
       <div class="single-profile">
-        <img src="{{ url_for('images', filename='profile_placeholder.jpg') }}" alt="{{ chef.display_name }}'s Profile Picture" />
+      <img
+        src="{{ chef.profile_image.image_url or '' }}"
+        alt="{{ chef.display_name }}'s profile picture"
+        onerror="this.onerror=null;
+                this.src='{{ url_for('images',
+                filename='profile_placeholder.jpg') }}';">
         <h3 class="author">{{ chef.display_name }}</h3>
         <p>Total Recipes: {{ chef.total_recipes }}</p>
       </div>
       {% endfor %}
+      </a>
     </div>
   </div>
   
@@ -89,13 +111,29 @@
       <!-- Latest Reviews Section -->
       {% for review, user, recipe in latest_reviews %}
       <div class="single-review">
-        <img src="{{ url_for('images', filename='profile_placeholder.jpg') }}" alt="{{ user.display_name }}'s Profile Picture" />
-        
+      <a href="{{ url_for('public_profile', user_id=user.id) }}" class="recipe-link">
+        <img src="{{ user.profile_image.image_url
+          if user.profile_image
+          else url_for('images', filename='profile_placeholder.jpg') }}"
+          alt="{{ user.display_name }}'s profile picture"
+          onerror="this.onerror=null;
+           this.src='{{ url_for('images',
+          filename='profile_placeholder.jpg') }}';">
+        </a>
+
         <div class="single-review-text">
           <div class="review-date">{{ review.created_at.strftime('%d-%m-%Y') }}</div>
 
-          <p><strong>{{ user.display_name }}</strong> : 
-            <a href="/recipe?id={{ recipe.id }}" class="recipe-link">{{ recipe.name }}</a></p>
+
+          <p>
+          <a href="{{ url_for('public_profile', user_id=user.id) }}" class="recipe-link">
+          <strong>{{ user.display_name }}</strong>
+          </a> : 
+          <a href="/recipe?id={{ recipe.id }}" class="recipe-link">
+          {{ recipe.name }}
+          </a>
+          </p>
+
             <div class="stars">
               {% for i in range(1, 6) %}
                 {% if i <= review.rating %}
@@ -105,6 +143,7 @@
                 {% endif %}
               {% endfor %}
             </div>
+
           <p>{{ review.review or "No comment provided."}}</p>
           <p><strong>Views:</strong> {{ recipe.view_count }}</p>
         </div>
