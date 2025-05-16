@@ -50,36 +50,45 @@
     <div class="recipe-listing">
       <!-- Top Recipes Section (based on rating)-->
       {% for recipe in top_recipes %}
-      <div class="recipe-preview"
-      onclick="location.href='/recipe?id={{ recipe.id }}'">
+      <div class="recipe-preview" onclick="location.href='/recipe?id={{ recipe.id }}'">
         <img class="browser-card-img"
-             src="{{ recipe.images[0].image_url
-                     if recipe.images
-                     else url_for('images',
-                                  filename='no-image-available-icon-vector.jpg') }}"
+             src="{{ recipe.images[0].image_url if recipe.images else url_for('images', filename='no-image-available-icon-vector.jpg') }}"
              alt="{{ recipe.name }}"
-             onerror="this.src='{{ url_for('images',
-                                           filename='no-image-available-icon-vector.jpg') }}'">
-    
+             onerror="this.src='{{ url_for('images', filename='no-image-available-icon-vector.jpg') }}'">
         <h3>{{ recipe.name }}</h3>
-        <p>{{ recipe.description }}</p>
-    
-        <div class="recipe-meta">
-          <span><strong>Cook Time:</strong> {{ recipe.cook_time }} mins</span>
-          <span class="meta-divider">|</span>
-          <span><strong>Quantity:</strong> Serves {{ recipe.servings }}</span>
+        <p class="recipe-desc">{{ recipe.description }}</p>
+        <div class="recipe-meta recipe-meta-center">
+          <div class="meta-label-row">
+            <span><strong>Cook Time:</strong></span>
+            <span class="meta-divider">|</span>
+            <span><strong>Quantity:</strong></span>
+          </div>
+          <div class="meta-value-row">
+            <span>{{ recipe.cook_time }} mins</span>
+            <span class="meta-divider"> </span>
+            <span>Serves {{ recipe.servings }}</span>
+          </div>
         </div>
-    
-        <div class="recipe-meta">
-          <span><strong>Views:</strong> {{ recipe.view_count }}</span>
+        <div class="recipe-rating-row">
+          <span class="recipe-rating-label">Rating:</span>
+          {% set avg = recipe.average_rating|default(0)|float %}
+          {% set avg_rounded = (avg * 4)|round|float / 4 %}
+          {% set rating_color = 'gray' %}
+          {% if avg_rounded == 0 %}
+            {% set rating_color = 'gray-rating' %}
+          {% elif avg_rounded >= 3.5 %}
+            {% set rating_color = 'green-rating' %}
+          {% elif avg_rounded >= 2 %}
+            {% set rating_color = 'yellow-rating' %}
+          {% elif avg_rounded > 0 %}
+            {% set rating_color = 'red-rating' %}
+          {% endif %}
+          <span class="recipe-rating-number {{ rating_color }}">{{ '%.2f' % avg_rounded }}</span>
           <span class="meta-divider">|</span>
-          <span><strong>Rating:</strong> {{ '%.1f' % recipe.average_rating }}/5.0</span>
+          <span class="recipe-views">Views: {{ recipe.view_count }}</span>
         </div>
-    
-        <p class="author">by {{ recipe.user.display_name }}</p>
       </div>
-    {% endfor %}
-    
+      {% endfor %}
     </div>
   </div>
 
