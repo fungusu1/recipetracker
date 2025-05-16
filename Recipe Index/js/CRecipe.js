@@ -222,6 +222,7 @@ async function submitNewIngredient() {
   const name = document.getElementById('new-ingredient-name').value.trim();
   const unit = document.getElementById('new-ingredient-unit').value.trim();
   const errorDiv = document.getElementById('ingredient-overlay-error');
+  errorDiv.textContent = '';
   if (!name) {
     errorDiv.textContent = 'Please enter an ingredient name.';
     return;
@@ -237,8 +238,21 @@ async function submitNewIngredient() {
       errorDiv.textContent = data.error || 'Could not add ingredient';
       return;
     }
+    // Add new ingredient to all select2 dropdowns (do not select it)
+    const newOption = new Option(data.name, data.name, false, false);
+    $('.ingredient-select').each(function() {
+      if ($(this).find(`option[value="${data.name}"]`).length === 0) {
+        $(this).append(newOption.cloneNode(true));
+      }
+    });
+    // Update the global ingredientUnits object
+    if (window.ingredientUnits) {
+      window.ingredientUnits[data.name] = data.default_unit || '';
+    }
+    updateUnitLabels();
     closeIngredientOverlay();
-    window.location.reload();
+    document.getElementById('new-ingredient-name').value = '';
+    document.getElementById('new-ingredient-unit').value = '';
   } catch (err) {
     errorDiv.textContent = 'Error adding ingredient: ' + err.message;
   }
