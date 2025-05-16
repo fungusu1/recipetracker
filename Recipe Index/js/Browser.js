@@ -165,4 +165,24 @@ $(document).ready(function() {
       $select.trigger('change.select2');
     });
   }
+
+  // Load More functionality
+  $(document).on('click', '#show-more-btn', function() {
+    var $btn = $(this);
+    if ($btn.prop('disabled')) return;
+    $btn.prop('disabled', true).text('Loading...');
+    var $form = $('#show-more-form');
+    var params = $form.serialize();
+    $.get('/browse/load_more?' + params, function(data) {
+      if (data && data.html) {
+        $('#recipe-listing').append(data.html);
+      }
+      if (data && data.show_more && data.next_page) {
+        $form.find('input[name="page"]').val(data.next_page);
+        $btn.prop('disabled', false).text('Show More');
+      } else {
+        $form.remove();
+      }
+    });
+  });
 }); 
