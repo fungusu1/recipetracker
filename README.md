@@ -41,6 +41,10 @@ Next create the SQLAlchemy database in the main directory by running:
 ```
 python3 CreateDB.py
 ```
+You can run the populate database script here to fill it with dummy data, or alternatively it's called when running the selenium tests:
+```
+python3 PopulateDB.py [amount of entries to be created]
+```
 Finally to run the flask app run:
 ```
 flask run
@@ -53,7 +57,11 @@ python3 app.py
 ## Testing
 To run the unit tests navigate to the 'tests' folder and run:
 ```
-python -m unittest discover -s . -p "unit_test.py"
+python3 unit_test.py
 
 ```
 To run selenium tests, in the same folder run:
+```
+python3 seleniumtests.py
+
+```
