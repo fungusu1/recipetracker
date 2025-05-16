@@ -600,7 +600,105 @@ def search():
         recipe_images=recipe_images
     )
 
+@app.route('/edit/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit_recipe(id):
+    recipe = Recipe.query.get_or_404(id)
+    if recipe.user_id != current_user.id:
+        flash('You do not have permission to edit this recipe.', 'error')
+        return redirect(url_for('view_recipe', id=id))
+
+    base_ingredients = BaseIngredient.query.order_by(BaseIngredient.name).all()
+    ingredient_units = {bi.name: bi.default_unit or '' for bi in base_ingredients}
+
+    if request.method == 'GET':
+        # Prepare shared user display names if shared
+        shared_users = []
+        if recipe.access_level == 2 and recipe.shared_with_ids:
+            import ast
+            user_ids = ast.literal_eval(recipe.shared_with_ids)
+            shared_users = User.query.filter(User.id.in_(user_ids)).all()
+        return render_template(
+            'EditRecipe.html',
+            recipe=recipe,
+            base_ingredients=base_ingredients,
+            ingredient_units=ingredient_units,
+            shared_users=shared_users
+        )
+
+    # POST: update the recipe
+    recipe.name = request.form['title']
+    recipe.description = request.form.get('description', '')
+    recipe.cook_time = int(request.form['cook_time'])
+    recipe.servings = int(request.form['servings'])
+
+    privacy_str = request.form.get('privacy', 'public')
+    privacy_map = {'public': 0, 'private': 1, 'shared': 2}
+    access_level = privacy_map.get(privacy_str, 0)
+    recipe.access_level = access_level
+
+    # Handle image upload (replace old image if new one is uploaded)
+    files = request.files.getlist('images')
+    upload_folder = app.config['UPLOAD_FOLDER']
+    if files and files[0] and files[0].filename:
+        # Remove old images
+        for img in recipe.images:
+            try:
+                os.remove(os.path.join(app.root_path, img.image_url.replace('/images/', 'images/')))
+            except Exception:
+                pass
+            db.session.delete(img)
+        for f in files:
+            if f and allowed_file(f.filename):
+                filename = secure_filename(f.filename)
+                save_path = os.path.join(upload_folder, filename)
+                f.save(save_path)
+                image_url = url_for('images', filename=filename)
+                img = RecipeImage(recipe_id=recipe.id, image_url=image_url)
+                db.session.add(img)
+
+    # Update ingredients
+    RecipeIngredient.query.filter_by(recipe_id=recipe.id).delete()
+    for name, qty in zip(
+        request.form.getlist('ingredient_name'),
+        request.form.getlist('quantity')
+    ):
+        name = name.strip()
+        qty  = qty.strip()
+        if not name or not qty:
+            continue
+        base = BaseIngredient.query.filter_by(name=name).first()
+        if not base:
+            continue
+        ri = RecipeIngredient(
+            recipe_id=recipe.id,
+            ingredient_id=base.id,
+            quantity=qty
+        )
+        db.session.add(ri)
+
+    # Update instructions
+    Instruction.query.filter_by(recipe_id=recipe.id).delete()
+    for i, step in enumerate(request.form.getlist('instructions'), start=1):
+        if step.strip():
+            inst = Instruction(
+                recipe_id=recipe.id,
+                step_number=i,
+                content=step.strip()
+            )
+            db.session.add(inst)
+
+    # Update shared users
+    shared_user_ids = request.form.get('shared_user_ids', '')
+    if access_level == 2 and shared_user_ids:
+        user_ids = [int(uid) for uid in shared_user_ids.split(',') if uid]
+        recipe.shared_with_ids = str(user_ids)
+    else:
+        recipe.shared_with_ids = None
+
+    db.session.commit()
+    return redirect(url_for('view_recipe', id=recipe.id))
+
 #Run Server
 if __name__ == '__main__':
     app.run(debug=True)
-
