@@ -51,4 +51,9 @@ python3 app.py
 ```
 
 ## Testing
-fill in later
+To run the unit tests navigate to the 'tests' folder and run:
+```
+python -m unittest discover -s . -p "unit_test.py"
+
+```
+To run selenium tests, in the same folder run:
