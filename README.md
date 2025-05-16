@@ -1,14 +1,9 @@
 # recipetracker
 Project for CITS3403 UWA
 
-The creation of the web application should be done in a private GitHub repository that includes a README containing:
-- a description of the purpose of the application, explaining its design and use.
-- a table with with each row containing the
-  - i) UWA ID
-  - ii) name and
-  - iii) Github user name of the group members.
-- instructions for how to launch the application.
-- instructions for how to run the tests for the application.
+Recipe Index is a social platform for sharing and viewing user created cooking recipes! Users are able to create Recipes using our own created template to publish or privately add to the Index. 
+Do you ever ask yourself what to make for lunch or dinner?
+This website will help you decide what to make by looking at our browsing page, where you can put in ingredients that you have laying around and it will give you recipes to try out!
 
 # CITS3403 - Group Project - Recipe Tracker
 
@@ -18,9 +13,6 @@ The creation of the web application should be done in a private GitHub repositor
 |23975858|Vincent Ta|SkyFate72|
 |23974898|Lucy Caluya|caluyaL|
 |23750573|Ryan Williams|fungusu1|
-
-RecipeTracker is a social platform for sharing and viewing user authored cooking recipes. fill in later
-info about tech stack used goes here
 
 ## Running
 Create a python virtual environment:
@@ -65,3 +57,13 @@ To run selenium tests, in the same folder run:
 python3 seleniumtests.py
 
 ```
+
+The creation of the web application should be done in a private GitHub repository that includes a README containing:
+- a description of the purpose of the application, explaining its design and use.
+- a table with with each row containing the
+  - i) UWA ID
+  - ii) name and
+  - iii) Github user name of the group members.
+- instructions for how to launch the application.
+- instructions for how to run the tests for the application.
+
